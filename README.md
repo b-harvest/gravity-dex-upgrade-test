@@ -173,28 +173,35 @@ echo $VAL_2_MNEMONIC | $BINARY --home $VAL_2_CHAIN_DIR keys add $VAL_2_KEY_NAME 
 
 
 
+# Add users' key
+
 USER_1_CHAIN_DIR=$CHAIN_DIR/$CHAIN_ID/val2
 USER_1_MNEMONIC="render hire dirt bulk huge goat jungle number wear method check during menu goat accident scan noise nerve below target resource digital column flee"
 USER_1_KEY_NAME="user1"
 
-- name: user1
-  type: local
-  address: cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6
-  pubkey: cosmospub1addwnpepqtpngaangvnl5pvlaltfreq28djqskzd6g6pw89pztj2cg44uyl7y6xgev8
+#- name: user1
+#  type: local
+#  address: cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6
+#  pubkey: cosmospub1addwnpepqtpngaangvnl5pvlaltfreq28djqskzd6g6pw89pztj2cg44uyl7y6xgev8
 
 
 USER_2_CHAIN_DIR=$CHAIN_DIR/$CHAIN_ID/val2
 USER_2_MNEMONIC="junk appear guide guess bar reject vendor illegal script sting shock afraid detect ginger other theory relief dress develop core pull across hen float"
 USER_2_KEY_NAME="user2"
 
-- name: user2
-  type: local
-  address: cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9
-  pubkey: cosmospub1addwnpepq2gvu5e8m34xpe5aky8wemsc9fefqs4y8h07s24cklr8lwrewf2lklysaen
+#- name: user2
+#  type: local
+#  address: cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9
+#  pubkey: cosmospub1addwnpepq2gvu5e8m34xpe5aky8wemsc9fefqs4y8h07s24cklr8lwrewf2lklysaen
 
 echo $USER_1_MNEMONIC | $BINARY --home $USER_1_CHAIN_DIR keys add $USER_1_KEY_NAME --recover --keyring-backend=test
 echo $USER_2_MNEMONIC | $BINARY --home $USER_2_CHAIN_DIR keys add $USER_2_KEY_NAME --recover --keyring-backend=test
 
+
+
+# start validator nodes 
+HOME1=./data/cosmoshub-4/val1
+HOME2=./data/cosmoshub-4/val2
 
 gaiad-42 start --home $HOME1 --x-crisis-skip-assert-invariants
 gaiad-42 start --home $HOME2 --x-crisis-skip-assert-invariants
