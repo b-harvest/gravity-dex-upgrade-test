@@ -624,10 +624,10 @@ gaiad-42 version
 # > v4.2.1
 
 # submit upgrade proposal, with upgrade-height
-gaiad-42 tx gov submit-proposal software-upgrade Gravity-DEX \
+gaiad-42 tx gov submit-proposal software-upgrade Gravity-DEX -y \
 --deposit 1000uatom \
 --title Gravity-DEX \
---upgrade-height 6659300 \
+--upgrade-height 6659400 \
 --upgrade-info v4.3.0-testhash \
 --description testdescription \
 --from user1 \
@@ -729,6 +729,13 @@ gaiad query liquidity pools \
 
 # swap request 
 gaiad tx liquidity swap 1 1 100000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C 0.019 0.003 \
+--from user2 --keyring-backend test \
+--home data/cosmoshub-4/val2 \
+--chain-id cosmoshub-4 \
+--node tcp://127.0.0.1:36657
+
+# withdraw request
+gaiad tx liquidity withdraw 1 10000pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151 \
 --from user2 --keyring-backend test \
 --home data/cosmoshub-4/val2 \
 --chain-id cosmoshub-4 \
