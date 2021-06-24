@@ -1,60 +1,44 @@
 # Gravity-DEX Upgrade Test
 
+This repository describes procedures and contains results of upgrade test for the `Gravity-DEX` on the exported state of `cosmosub-4` chain.
 
+To get more context about this repo, please reference the following [issue](https://github.com/tendermint/liquidity/issues/403) and [pull request](https://github.com/cosmos/gaia/pull/859).
 
-This repository contains the procedures and results of the test to upgrade `Gravity-DEX` based on the exported states of the `cosmosub-4` chain.
+## Versions
 
+- Build this [gaia version](https://github.com/cosmos/gaia/releases/tag/v4.2.1) that is used in `cosmoshub-4`
 
+- This [gaia version](https://github.com/b-harvest/gravity-dex/releases/tag/v1.0.3) is used for `Gravity-DEX` upgrade
 
-Gaia Binary of cosmoshub-4: https://github.com/cosmos/gaia/releases/tag/v4.2.1
+# Genesis configuration 
 
-Gaia Binary to upgrade for Gravity-DEX:
+`exported_genesis_with_height_6659211_sorted_origin.json` file is prepared in this repository in the zip file. It is exported using `gaiad export` command on block height `6659211` from `cosmoshub-4` network. Unzip the attached genesis file. 
 
-- https://github.com/b-harvest/gravity-dex/releases/tag/v1.0.3
+## Unzip the tar files and verify the hashes
 
-- latest commit of https://github.com/b-harvest/gravity-dex/tree/add-liquidity-module-to-gaia branch (PR859)
-
-Github Issue: https://github.com/tendermint/liquidity/issues/403 
-
-Gaia PR: https://github.com/cosmos/gaia/pull/859
-
-
-
-
-
-# Genesis settings 
-
-`exported_genesis_with_height_6659211_sorted_origin.json` is exported by `gaiad export ` command on 6659211 height of `cosmoshub-4 ` network
-
-the exported is already attached on this repo, so It could be skipped
-
-
-
-### Unzip the attached genesis file 
-
-`tar xvzf exported_genesis_with_height_6659211_sorted_origin.json.tar.bz2`
-
-`cat exported_genesis_with_height_6659211_sorted_origin.json | shasum -a 256`
-
-> a955b5752f2f0e5384a1e99323ad2ca6c9db58c7b605123bb5896693882136f4
-
-
-
-`tar xvzf genesis.json.tar.bz2`
-
-`cat genesis.json | shasum -a 256`
-
-> 1da7c1b0358f1bbe26d4e15ba60eb9fc00aee32381ec0d0a35380510477a1a1d
-
-### Copy the exported genesis for modifying params, accounts, validators states, or skip this step and use already modified genesis.json file
-
-`cp exported_genesis_with_height_6659211_sorted_origin.json genesis.json`
-
-
-
-### Set variables, Change pubkey and address of two validators and two users
+### exported state
 
 ```bash
+# exported state file
+tar xvzf exported_genesis_with_height_6659211_sorted_origin.json.tar.bz2
+
+# should be a955b5752f2f0e5384a1e99323ad2ca6c9db58c7b605123bb5896693882136f4
+cat exported_genesis_with_height_6659211_sorted_origin.json | shasum -a 256
+
+# already modified genesis file
+tar xvzf genesis.json.tar.bz2
+
+# should be 1da7c1b0358f1bbe26d4e15ba60eb9fc00aee32381ec0d0a35380510477a1a1d
+cat genesis.json | shasum -a 256
+```
+
+> Note that the `genesis.json.tar.bz2` in this repository is already proceeded with the following modifications. You can use it to test the upgrade procedure. However, in this guide we're using the exported state to do the modifications.
+
+```bash
+# change the name to genesis.json
+cp exported_genesis_with_height_6659211_sorted_origin.json genesis.json
+
+# set variables, change pubkey and address of two validators and two users
 EXPORTED_GENESIS=genesis.json
 BINARY=gaiad
 CHAIN_ID=cosmoshub-4
@@ -65,13 +49,10 @@ sed -i '' 's%cOQZvh/h9ZioSeUMZB/1Vy1Xo5x2sjrVjlE/qHnYifM=%qwiUMxz3llsy45fPvM0a8+
 sed -i '' 's%B00A6323737F321EB0B8D59C6FD497A14B60938A%D5AB5E458FD9F9964EF50A80451B6F3922E6A4AA%g' $EXPORTED_GENESIS
 sed -i '' 's%cosmosvalcons1kq9xxgmn0uepav9c6kwxl4yh599kpyu28e7ee6%cosmosvalcons16k44u3v0m8uevnh4p2qy2xm08y3wdf92xsc3ve%g' $EXPORTED_GENESIS
 
-
-
 # change validator2
 sed -i '' 's%W459Kbdx+LJQ7dLVASW6sAfdqWqNRSXnvc53r9aOx/o=%oi55Dw+JjLQc4u1WlAS3FsGwh5fd5/N5cP3VOLnZ/H0=%g' $EXPORTED_GENESIS
 sed -i '' 's%83F47D7747B0F633A6BA0DF49B7DCF61F90AA1B0%7CB07B94FD743E2A8520C2B50DA4B03740643BF5%g' $EXPORTED_GENESIS
 sed -i '' 's%cosmosvalcons1s0686a68krmr8f46ph6fklw0v8us4gdsm7nhz3%cosmosvalcons10jc8h98awslz4pfqc26smf9sxaqxgwl4vxpcrp%g' $EXPORTED_GENESIS
-
 
 # change user1 address for voting
 # cosmos1dnxfxad3ag26l298f9pfv6u43nlt0madl3qsgl to cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6
@@ -79,15 +60,11 @@ sed -i '' 's%cosmosvalcons1s0686a68krmr8f46ph6fklw0v8us4gdsm7nhz3%cosmosvalcons1
 sed -i '' 's%cosmos1dnxfxad3ag26l298f9pfv6u43nlt0madl3qsgl%cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6%g' $EXPORTED_GENESIS
 sed -i '' 's%Am5HzAWtsyvoQy49DyM4Q1sZiZL6UvTgKSJW4ERAhCR8%AsM0d7NDJ/oFn+/WkeQKO2QIWE3SNBccoRLkrCK14T/i%g' $EXPORTED_GENESIS
 
-
 # change user2 address for swap
 # cosmos1z98eg2ztdp2glyla62629nrlvczg8s7f0tm3dx to cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9
 # A6apc7iThbRkwboKqPy6eXxxQvTH+0lNkXZvugDM9V4g to ApDOUyfcamDmnbEO7O4YKnKQQqQ93+gquLfGf7h5clX7
 sed -i '' 's%cosmos1z98eg2ztdp2glyla62629nrlvczg8s7f0tm3dx%cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9%g' $EXPORTED_GENESIS
 sed -i '' 's%A6apc7iThbRkwboKqPy6eXxxQvTH+0lNkXZvugDM9V4g%ApDOUyfcamDmnbEO7O4YKnKQQqQ93+gquLfGf7h5clX7%g' $EXPORTED_GENESIS
-
-
-
 ```
 
 
