@@ -4,89 +4,96 @@ This repository describes procedures and contains results of upgrade test for th
 
 To get more context about this repo, please reference the following [issue](https://github.com/tendermint/liquidity/issues/403) and [pull request](https://github.com/cosmos/gaia/pull/859).
 
-## Versions
+# Version
 
-- Build this [gaia version](https://github.com/cosmos/gaia/releases/tag/v4.2.1) that is used in `cosmoshub-4`
+- Build this [gaia v4.2.1](https://github.com/cosmos/gaia/releases/tag/v4.2.1) that is used in `cosmoshub-4`
 
 - This [gaia version](https://github.com/b-harvest/gravity-dex/releases/tag/v1.0.3) is used for `Gravity-DEX` upgrade
 
 # Genesis configuration 
 
-`exported_genesis_with_height_6659211_sorted_origin.json` file is prepared in this repository in the zip file. It is exported using `gaiad export` command on block height `6659211` from `cosmoshub-4` network. Unzip the attached genesis file. 
+- This `exported_genesis_with_height_6659211_sorted_origin.json` zip file is prepared in this repository. It is exported using `gaiad export` command on block height `6659211` from `cosmoshub-4` network. Unzip the attached genesis file to proceed the next steps in this guide.
+
+- This `genesis.json.tar.bz2` zip file is the filw that already proceeded all the modifications and is ready to be used right away. You can skip the next steps and use this to proceed the upgrade test.
 
 ## Unzip the tar files and verify the hashes
 
-### exported state
+As stated above, skip the below steps if you decide to use `genesis.json.tar.gz2`.
+
+### 1. Verify the hash and copy exported state file
 
 ```bash
-# exported state file
+# unzip the file
 tar xvzf exported_genesis_with_height_6659211_sorted_origin.json.tar.bz2
 
-# should be a955b5752f2f0e5384a1e99323ad2ca6c9db58c7b605123bb5896693882136f4
+# verify the hash
+# it should return a955b5752f2f0e5384a1e99323ad2ca6c9db58c7b605123bb5896693882136f4
 cat exported_genesis_with_height_6659211_sorted_origin.json | shasum -a 256
 
-# already modified genesis file
-tar xvzf genesis.json.tar.bz2
-
-# should be 1da7c1b0358f1bbe26d4e15ba60eb9fc00aee32381ec0d0a35380510477a1a1d
-cat genesis.json | shasum -a 256
-```
-
-> Note that the `genesis.json.tar.bz2` in this repository is already proceeded with the following modifications. You can use it to test the upgrade procedure. However, in this guide we're using the exported state to do the modifications.
-
-```bash
 # change the name to genesis.json
 cp exported_genesis_with_height_6659211_sorted_origin.json genesis.json
+```
 
-# set variables, change pubkey and address of two validators and two users
-EXPORTED_GENESIS=genesis.json
-BINARY=gaiad
-CHAIN_ID=cosmoshub-4
-CHAIN_DIR=./data
+### 2. Substitue validator keys and accounts
 
-# change validator1
+In this step, we're swapping two validators and add two different accounts. Also, we're going to modify some parameters for test efficiency. 
+
+The following files and mnemonics for the two different accounts are already provided: 
+
+- `priv_validator_key_val1.json`: validator1's consensus key
+
+- `priv_validator_key_val2.json`: validator2's consensus key
+
+- `guard cream sadness conduct invite crumble clock pudding hole grit liar hotel maid produce squeeze return argue turtle know drive eight casino maze host`: The mnemonic for account1. This account is used for validator1
+
+- `friend excite rough reopen cover wheel spoon convince island path clean monkey play snow number walnut pull lock shoot hurry dream divide concert discover`: The mnemonic for account2. This account is used to test some cli interfaces for the liquidity module.
+
+- `render hire dirt bulk huge goat jungle number wear method check during menu goat accident scan noise nerve below target resource digital column flee`: This account is `user1` that is used for sending governance proposal and voting the proposal.
+
+- `junk appear guide guess bar reject vendor illegal script sting shock afraid detect ginger other theory relief dress develop core pull across hen float`: This account is `user2` that is used to test some cli interfaces for the liquidity module.
+
+```bash
+# configure variables
+export EXPORTED_GENESIS=genesis.json
+export BINARY=gaiad
+export CHAIN_ID=cosmoshub-4
+export CHAIN_DIR=./data
+
+# substitue validator1
 sed -i '' 's%cOQZvh/h9ZioSeUMZB/1Vy1Xo5x2sjrVjlE/qHnYifM=%qwiUMxz3llsy45fPvM0a8+XQeAJLvrX3QAEJmRMEEoU=%g' $EXPORTED_GENESIS
 sed -i '' 's%B00A6323737F321EB0B8D59C6FD497A14B60938A%D5AB5E458FD9F9964EF50A80451B6F3922E6A4AA%g' $EXPORTED_GENESIS
 sed -i '' 's%cosmosvalcons1kq9xxgmn0uepav9c6kwxl4yh599kpyu28e7ee6%cosmosvalcons16k44u3v0m8uevnh4p2qy2xm08y3wdf92xsc3ve%g' $EXPORTED_GENESIS
 
-# change validator2
+# substitue validator2
 sed -i '' 's%W459Kbdx+LJQ7dLVASW6sAfdqWqNRSXnvc53r9aOx/o=%oi55Dw+JjLQc4u1WlAS3FsGwh5fd5/N5cP3VOLnZ/H0=%g' $EXPORTED_GENESIS
 sed -i '' 's%83F47D7747B0F633A6BA0DF49B7DCF61F90AA1B0%7CB07B94FD743E2A8520C2B50DA4B03740643BF5%g' $EXPORTED_GENESIS
 sed -i '' 's%cosmosvalcons1s0686a68krmr8f46ph6fklw0v8us4gdsm7nhz3%cosmosvalcons10jc8h98awslz4pfqc26smf9sxaqxgwl4vxpcrp%g' $EXPORTED_GENESIS
 
-# change user1 address for voting
-# cosmos1dnxfxad3ag26l298f9pfv6u43nlt0madl3qsgl to cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6
-# Am5HzAWtsyvoQy49DyM4Q1sZiZL6UvTgKSJW4ERAhCR8 to AsM0d7NDJ/oFn+/WkeQKO2QIWE3SNBccoRLkrCK14T/i
+# substitute user1 account
+# cosmos1dnxfxad3ag26l298f9pfv6u43nlt0madl3qsgl --> cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6
+# Am5HzAWtsyvoQy49DyM4Q1sZiZL6UvTgKSJW4ERAhCR8 --> AsM0d7NDJ/oFn+/WkeQKO2QIWE3SNBccoRLkrCK14T/i
 sed -i '' 's%cosmos1dnxfxad3ag26l298f9pfv6u43nlt0madl3qsgl%cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6%g' $EXPORTED_GENESIS
 sed -i '' 's%Am5HzAWtsyvoQy49DyM4Q1sZiZL6UvTgKSJW4ERAhCR8%AsM0d7NDJ/oFn+/WkeQKO2QIWE3SNBccoRLkrCK14T/i%g' $EXPORTED_GENESIS
 
-# change user2 address for swap
-# cosmos1z98eg2ztdp2glyla62629nrlvczg8s7f0tm3dx to cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9
-# A6apc7iThbRkwboKqPy6eXxxQvTH+0lNkXZvugDM9V4g to ApDOUyfcamDmnbEO7O4YKnKQQqQ93+gquLfGf7h5clX7
+# substitute user2 account
+# cosmos1z98eg2ztdp2glyla62629nrlvczg8s7f0tm3dx --> cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9
+# A6apc7iThbRkwboKqPy6eXxxQvTH+0lNkXZvugDM9V4g --> ApDOUyfcamDmnbEO7O4YKnKQQqQ93+gquLfGf7h5clX7
 sed -i '' 's%cosmos1z98eg2ztdp2glyla62629nrlvczg8s7f0tm3dx%cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9%g' $EXPORTED_GENESIS
 sed -i '' 's%A6apc7iThbRkwboKqPy6eXxxQvTH+0lNkXZvugDM9V4g%ApDOUyfcamDmnbEO7O4YKnKQQqQ93+gquLfGf7h5clX7%g' $EXPORTED_GENESIS
 ```
 
-
-
-### Change power of the validator and staking delegation to over 67% power locally 
+### 3. Change voting power and staking delegation to over 67%
 
 ```bash
-
-
-# power, delegation, staking
 sed -i '' 's%13488360679504%6013488360679504%g' $EXPORTED_GENESIS
 sed -i '' 's%"power": "13488360"%"power": "603488360"%g' $EXPORTED_GENESIS
 sed -i '' 's%274699904554428%6274699904554428%g' $EXPORTED_GENESIS
 sed -i '' 's%"25390741.000000000000000000"%"6000000025390741.000000000000000000"%g' $EXPORTED_GENESIS
 sed -i '' 's%"191488844"%"6191488844"%g' $EXPORTED_GENESIS
-
-
 ```
+### 4. Modify some gov parameters for test efficiency
 
-
-
-### Adjust some gov parameters for fast testing
+The following parameters are needed to be modified:
 
 - minimum deposit amount
 - quorum
@@ -94,77 +101,57 @@ sed -i '' 's%"191488844"%"6191488844"%g' $EXPORTED_GENESIS
 - voting_period
 
 ```bash
-
-# params
 sed -i '' 's%"amount": "64000000",%"amount": "1",%g' $EXPORTED_GENESIS
 sed -i '' 's%"quorum": "0.400000000000000000",%"quorum": "0.000000000000000001",%g' $EXPORTED_GENESIS
 sed -i '' 's%"threshold": "0.500000000000000000",%"threshold": "0.000000000000000001",%g' $EXPORTED_GENESIS
-sed -i '' 's%"voting_period": "1209600s"%"voting_period": "60s"%g' $EXPORTED_GENESIS
-
-
+sed -i '' 's%"voting_period": "1209600s"%"voting_period": "30s"%g' $EXPORTED_GENESIS
 ```
-
-
-
-
-
-### Add test validators and users accounts, Init app directory
-
-after that, need to manual setup config.toml, app.toml for peering the nodes each other for local network 
+### 5. Initialize local chain
 
 ```bash
-EXPORTED_GENESIS=genesis.json
-BINARY=gaiad-42
-CHAIN_ID=cosmoshub-4
-CHAIN_DIR=./data
+export EXPORTED_GENESIS=genesis.json
+export BINARY=gaiad
+export CHAIN_ID=cosmoshub-4
+export CHAIN_DIR=./data
 
+export VAL_1_CHAIN_DIR=$CHAIN_DIR/$CHAIN_ID/val1
+export VAL_1_MNEMONIC="guard cream sadness conduct invite crumble clock pudding hole grit liar hotel maid produce squeeze return argue turtle know drive eight casino maze host"
+export VAL_1_KEY_NAME="val1"
+export VAL_1_MONIKER="Validator One"
 
-VAL_1_CHAIN_DIR=$CHAIN_DIR/$CHAIN_ID/val1
-VAL_1_MNEMONIC="guard cream sadness conduct invite crumble clock pudding hole grit liar hotel maid produce squeeze return argue turtle know drive eight casino maze host"
-VAL_1_KEY_NAME="val1"
-VAL_1_MONIKER="Validator One"
-
-VAL_2_CHAIN_DIR=$CHAIN_DIR/$CHAIN_ID/val2
-VAL_2_MNEMONIC="friend excite rough reopen cover wheel spoon convince island path clean monkey play snow number walnut pull lock shoot hurry dream divide concert discover"
-VAL_2_KEY_NAME="val2"
-VAL_2_MONIKER="Validator Two"
-
-
+export VAL_2_CHAIN_DIR=$CHAIN_DIR/$CHAIN_ID/val2
+export VAL_2_MNEMONIC="friend excite rough reopen cover wheel spoon convince island path clean monkey play snow number walnut pull lock shoot hurry dream divide concert discover"
+export VAL_2_KEY_NAME="val2"
+export VAL_2_MONIKER="Validator Two"
 
 # Validator 1
-
 echo "Initializing $CHAIN_ID..."
-$BINARY --home $VAL_1_CHAIN_DIR init test --chain-id=$CHAIN_ID
+$BINARY init test --home $VAL_1_CHAIN_DIR --chain-id=$CHAIN_ID 
 
 echo "Adding genesis accounts..."
 echo $VAL_1_MNEMONIC | $BINARY --home $VAL_1_CHAIN_DIR keys add $VAL_1_KEY_NAME --recover --keyring-backend=test 
 
-
 # Validator 2
-
 echo "Initializing $CHAIN_ID..."
 $BINARY --home $VAL_2_CHAIN_DIR init test --chain-id=$CHAIN_ID
 
 echo "Adding genesis accounts..."
 echo $VAL_2_MNEMONIC | $BINARY --home $VAL_2_CHAIN_DIR keys add $VAL_2_KEY_NAME --recover --keyring-backend=test 
 
-
-
-# Add users' key
-
-USER_1_CHAIN_DIR=$CHAIN_DIR/$CHAIN_ID/val2
-USER_1_MNEMONIC="render hire dirt bulk huge goat jungle number wear method check during menu goat accident scan noise nerve below target resource digital column flee"
-USER_1_KEY_NAME="user1"
+# Account 1
+export USER_1_CHAIN_DIR=$CHAIN_DIR/$CHAIN_ID/val2
+export USER_1_MNEMONIC="render hire dirt bulk huge goat jungle number wear method check during menu goat accident scan noise nerve below target resource digital column flee"
+export USER_1_KEY_NAME="user1"
 
 #- name: user1
 #  type: local
 #  address: cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6
 #  pubkey: cosmospub1addwnpepqtpngaangvnl5pvlaltfreq28djqskzd6g6pw89pztj2cg44uyl7y6xgev8
 
-
-USER_2_CHAIN_DIR=$CHAIN_DIR/$CHAIN_ID/val2
-USER_2_MNEMONIC="junk appear guide guess bar reject vendor illegal script sting shock afraid detect ginger other theory relief dress develop core pull across hen float"
-USER_2_KEY_NAME="user2"
+# Account 2
+export USER_2_CHAIN_DIR=$CHAIN_DIR/$CHAIN_ID/val2
+export USER_2_MNEMONIC="junk appear guide guess bar reject vendor illegal script sting shock afraid detect ginger other theory relief dress develop core pull across hen float"
+export USER_2_KEY_NAME="user2"
 
 #- name: user2
 #  type: local
@@ -173,24 +160,211 @@ USER_2_KEY_NAME="user2"
 
 echo $USER_1_MNEMONIC | $BINARY --home $USER_1_CHAIN_DIR keys add $USER_1_KEY_NAME --recover --keyring-backend=test
 echo $USER_2_MNEMONIC | $BINARY --home $USER_2_CHAIN_DIR keys add $USER_2_KEY_NAME --recover --keyring-backend=test
-
-
-
-# start validator nodes 
-HOME1=./data/cosmoshub-4/val1
-HOME2=./data/cosmoshub-4/val2
-
-gaiad-42 start --home $HOME1 --x-crisis-skip-assert-invariants
-gaiad-42 start --home $HOME2 --x-crisis-skip-assert-invariants
-
-
 ```
 
+### 6. Copy exported genesis file and configure `config.toml` and `app.toml`
 
+```bash
+# copy genesis file 
+cp genesis.json $VAL_1_CHAIN_DIR/config/genesis.json
+cp genesis.json $VAL_2_CHAIN_DIR/config/genesis.json
 
+# copy validator keys
+cp priv_validator_key_val1.json $VAL_1_CHAIN_DIR/config/priv_validator_key.json
+cp priv_validator_key_val2.json $VAL_2_CHAIN_DIR/config/priv_validator_key.json
 
+# configure config and app toml
+export VAL_1_P2P_PORT=26656
+export VAL_2_P2P_PORT=36656
+export VAL_2_RPC_PORT=36657
+export VAL_2_API_PORT=1327
+export VAL_2_GRPC_PORT=9080
+export VAL_2_PPROF_PORT=6061
+sed -i '' 's#"tcp://127.0.0.1:26657"#"tcp://0.0.0.0:'"$VAL_2_RPC_PORT"'"#g' $VAL_2_CHAIN_DIR/config/config.toml
+sed -i '' 's#"tcp://0.0.0.0:26656"#"tcp://0.0.0.0:'"$VAL_2_P2P_PORT"'"#g' $VAL_2_CHAIN_DIR/config/config.toml
+sed -i '' 's#"tcp://0.0.0.0:1317"#"tcp://0.0.0.0:'"$VAL_2_API_PORT"'"#g' $VAL_2_CHAIN_DIR/config/app.toml
+sed -i '' 's#"0.0.0.0:9090"#"0.0.0.0:'"$VAL_2_GRPC_PORT"'"#g' $VAL_2_CHAIN_DIR/config/app.toml
+sed -i '' 's/enable = false/enable = true/g' $VAL_2_CHAIN_DIR/config/app.toml
+sed -i '' 's/swagger = false/swagger = true/g' $VAL_2_CHAIN_DIR/config/app.toml
 
-### Diff modified genesis.json
+# configure peers
+export VAL_1_NODE_ID=$($BINARY tendermint --home $VAL_1_CHAIN_DIR show-node-id)
+export VAL_2_NODE_ID=$($BINARY tendermint --home $VAL_2_CHAIN_DIR show-node-id)
+sed -i '' 's/persistent_peers = ""/persistent_peers = "'$VAL_2_NODE_ID'@'localhost':'$VAL_2_P2P_PORT'"/g' $VAL_1_CHAIN_DIR/config/config.toml
+sed -i '' 's/persistent_peers = ""/persistent_peers = "'$VAL_1_NODE_ID'@'localhost':'$VAL_1_P2P_PORT'"/g' $VAL_2_CHAIN_DIR/config/config.toml
+sed -i '' 's/unconditional_peer_ids = ""/unconditional_peer_ids = "'$VAL_1_NODE_ID'"/g' $VAL_2_CHAIN_DIR/config/config.toml
+sed -i '' 's/unconditional_peer_ids = ""/unconditional_peer_ids = "'$VAL_2_NODE_ID'"/g' $VAL_1_CHAIN_DIR/config/config.toml
+sed -i '' 's/pprof_laddr = "localhost:6060"/pprof_laddr = "localhost:'$VAL_2_PPROF_PORT'"/g' $VAL_2_CHAIN_DIR/config/config.toml
+sed -i '' 's/addr_book_strict = true/addr_book_strict = false/g' $VAL_2_CHAIN_DIR/config/config.toml
+sed -i '' 's/addr_book_strict = true/addr_book_strict = false/g' $VAL_1_CHAIN_DIR/config/config.toml
+```
+### 7. Let's start chain
+
+```bash
+# start validator nodes 
+export HOME1=./data/cosmoshub-4/val1
+export HOME2=./data/cosmoshub-4/val2
+
+# use terminal 1
+$BINARY start --home $HOME1 --x-crisis-skip-assert-invariants
+
+# use terminal 2
+$BINARY start --home $HOME2 --x-crisis-skip-assert-invariants
+```
+### 8. Upgrade test
+
+```bash
+# v4.2.1
+gaiad version
+
+# submit upgrade proposal 
+# make sure upgrade-height has enough time for the proposal to pass
+gaiad tx gov submit-proposal software-upgrade Gravity-DEX \
+--deposit 1000uatom \
+--title Gravity-DEX \
+--upgrade-height 6659848 \
+--upgrade-info v4.3.0-testhash \
+--description testdescription \
+--from user1 \
+--keyring-backend test \
+--chain-id cosmoshub-4 \
+--home data/cosmoshub-4/val2 \
+--node tcp://localhost:36657
+
+# vote yes for the proposal
+# note that voting period, quorum, and threshold params are modified 
+gaiad tx gov vote 50 yes -y \
+--from user1 \
+--keyring-backend test \
+--chain-id cosmoshub-4 \
+--home data/cosmoshub-4/val2 \
+--node tcp://127.0.0.1:36657 
+
+# query the proposal to check if it is passed
+# the status should be PROPOSAL_STATUS_PASSED
+gaiad query gov proposal 50 \
+--chain-id cosmoshub-4 \
+--home data/cosmoshub-4/val2 \
+--node tcp://127.0.0.1:36657 
+```
+
+```json
+// result of the proposal
+content:
+  '@type': /cosmos.upgrade.v1beta1.SoftwareUpgradeProposal
+  description: testdescription
+  plan:
+    height: "6659300"
+    info: v4.3.0-testhash
+    name: Gravity-DEX
+    time: "0001-01-01T00:00:00Z"
+    upgraded_client_state: null
+  title: Gravity-DEX
+deposit_end_time: "2021-07-06T02:36:15.536556Z"
+final_tally_result:
+  abstain: "0"
+  "no": "0"
+  no_with_veto: "0"
+  "yes": "72642221"
+proposal_id: "50"
+status: PROPOSAL_STATUS_PASSED
+submit_time: "2021-06-22T02:36:15.536556Z"
+total_deposit:
+- amount: "1000"
+  denom: uatom
+voting_end_time: "2021-06-22T02:37:15.536556Z"
+voting_start_time: "2021-06-22T02:36:15.536556Z"
+```
+### 9. Restart node using new gaiad gravity-dex version,
+
+The proposal has passed and it is all good to go. When `upgrade-height` is reached, the node must be halted for upgrade.
+
+> ERR UPGRADE "Gravity-DEX" NEEDED at height: 6659975: v4.3.0-testhash
+> ERR CONSENSUS FAILURE!!! err="UPGRADE \"Gravity-DEX\" NEEDED at height: 6659975: v4.3.0-testhash" module=consensus stack="goroutine 496414...
+
+```bash
+# gaia version that includes gravity-dex module
+# https://github.com/b-harvest/gravity-dex/releases/tag/v1.0.4
+# latest add-liquidity-module-to-gaia branch
+gaiad version
+-> HEAD-fd6bb727660a052bc1e702325acd28b02dfd6a39
+
+gaiad start --home $HOME1 --x-crisis-skip-assert-invariants
+gaiad start --home $HOME2 --x-crisis-skip-assert-invariants
+```
+### 10. Test liquidity module
+
+```bash
+# query liquidity parameters
+gaiad query liquidity params \
+--node tcp://127.0.0.1:36657
+
+# create liquidity pool 
+gaiad tx liquidity create-pool 1 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C,1000000uatom \
+--from user2 --keyring-backend test \
+--home data/cosmoshub-4/val2 \
+--chain-id cosmoshub-4 \
+--gas 300000 \
+--node tcp://127.0.0.1:36657
+
+# query liquidity pool
+gaiad query liquidity pools \
+--node tcp://127.0.0.1:36657
+
+# swap request 
+gaiad tx liquidity swap 1 1 100000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C 0.019 0.003 \
+--from user2 --keyring-backend test \
+--home data/cosmoshub-4/val2 \
+--chain-id cosmoshub-4 \
+--node tcp://127.0.0.1:36657
+
+gaiad query auth account cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6 \
+--node tcp://127.0.0.1:36657 
+
+gaiad query auth account cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 \
+--node tcp://127.0.0.1:36657 
+
+# query balance after swap transacted 
+gaiad query bank balances cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 \
+--node tcp://127.0.0.1:36657 
+```
+
+```json
+// result of liquidity module params
+circuit_breaker_enabled: false
+init_pool_coin_mint_amount: "1000000"
+max_order_amount_ratio: "0.100000000000000000"
+max_reserve_coin_amount: "0"
+min_init_deposit_amount: "1000000"
+pool_creation_fee:
+- amount: "100000000"
+  denom: uatom
+pool_types:
+- description: ""
+  id: 1
+  max_reserve_coin_num: 2
+  min_reserve_coin_num: 2
+  name: DefaultPoolType
+swap_fee_rate: "0.003000000000000000"
+unit_batch_height: 1
+withdraw_fee_rate: "0.003000000000000000"
+```
+
+```json
+// result of created liquidity pool
+pagination:
+  next_key: null
+  total: "1"
+pools:
+- id: "1"
+  pool_coin_denom: pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151
+  reserve_account_address: cosmos1qf9sqpexwyh3py786f8vx2w7fx8thpd5wz79sf
+  reserve_coin_denoms:
+  - ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C
+  - uatom
+  type_id: 1
+```
+# (Research) Modified `genesis.json`
 
 `diff exported_genesis_with_height_6659211_sorted_origin.json genesis.json -u`
 
@@ -609,190 +783,3 @@ gaiad-42 start --home $HOME2 --x-crisis-skip-assert-invariants
      {
 
 ```
-
-
-
-
-
-# Upgrade Test 
-
-### Submit and vote upgrade proposal
-
-```bash
-# using gaia v4.2.1 as gaiad-42 binary
-gaiad-42 version
-# > v4.2.1
-
-# submit upgrade proposal, with upgrade-height
-gaiad-42 tx gov submit-proposal software-upgrade Gravity-DEX -y \
---deposit 1000uatom \
---title Gravity-DEX \
---upgrade-height 6659400 \
---upgrade-info v4.3.0-testhash \
---description testdescription \
---from user1 \
---keyring-backend test \
---chain-id cosmoshub-4 \
---home data/cosmoshub-4/val2 \
---node tcp://127.0.0.1:36657
-
-
-# vote yes for the proposal, voting period, quorum and threshold is modified for test
-gaiad-42 tx gov vote 50 yes -y \
---from user1 \
---keyring-backend test \
---chain-id cosmoshub-4 \
---home data/cosmoshub-4/val2 \
---node tcp://127.0.0.1:36657 
-
-# query proposal for checking is passed
-gaiad-42 query gov proposal 50 \
---chain-id cosmoshub-4 \
---home data/cosmoshub-4/val2 \
---node tcp://127.0.0.1:36657 
-
-
-```
-
-result of the proposal
-
-```json
-content:
-  '@type': /cosmos.upgrade.v1beta1.SoftwareUpgradeProposal
-  description: testdescription
-  plan:
-    height: "6659300"
-    info: v4.3.0-testhash
-    name: Gravity-DEX
-    time: "0001-01-01T00:00:00Z"
-    upgraded_client_state: null
-  title: Gravity-DEX
-deposit_end_time: "2021-07-06T02:36:15.536556Z"
-final_tally_result:
-  abstain: "0"
-  "no": "0"
-  no_with_veto: "0"
-  "yes": "72642221"
-proposal_id: "50"
-status: PROPOSAL_STATUS_PASSED
-submit_time: "2021-06-22T02:36:15.536556Z"
-total_deposit:
-- amount: "1000"
-  denom: uatom
-voting_end_time: "2021-06-22T02:37:15.536556Z"
-voting_start_time: "2021-06-22T02:36:15.536556Z"
-```
-
-
-
-
-
-### When upgrade-height, the node is halted for upgrade,
-
-### Restart node using new gaiad gravity-dex version,
-
-```bash
-
-# using gaiad as gravity-dex
-gaiad version
-# > add-liquidity-module-to-gaia-022f6eea5ec93995bc175c556e37e30cae22e1f6
-
-gaiad start --home $HOME1 --x-crisis-skip-assert-invariants
-gaiad start --home $HOME2 --x-crisis-skip-assert-invariants
-
-```
-
-
-
-### Test functionality of added liquidity module
-
-```bash
-
-# query liquidity parameters
-gaiad query liquidity params \
---node tcp://127.0.0.1:36657
-
-
-# create liquidity pool 
-gaiad tx liquidity create-pool 1 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C,1000000uatom \
---from user2 --keyring-backend test \
---home data/cosmoshub-4/val2 \
---chain-id cosmoshub-4 \
---gas 300000 \
---node tcp://127.0.0.1:36657
-
-
-# query created liquidity pool
-gaiad query liquidity pools \
---node tcp://127.0.0.1:36657
-
-
-# swap request 
-gaiad tx liquidity swap 1 1 100000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C 0.019 0.003 \
---from user2 --keyring-backend test \
---home data/cosmoshub-4/val2 \
---chain-id cosmoshub-4 \
---node tcp://127.0.0.1:36657
-
-# withdraw request
-gaiad tx liquidity withdraw 1 10000pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151 \
---from user2 --keyring-backend test \
---home data/cosmoshub-4/val2 \
---chain-id cosmoshub-4 \
---node tcp://127.0.0.1:36657
-
-
-gaiad query auth account cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6 \
---node tcp://127.0.0.1:36657 
-
-gaiad query auth account cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 \
---node tcp://127.0.0.1:36657 
-
-
-# query balance after swap transacted 
-gaiad query bank balances cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 \
---node tcp://127.0.0.1:36657 
-```
-
-
-
-result of liquidity module params
-
-```json
-circuit_breaker_enabled: false
-init_pool_coin_mint_amount: "1000000"
-max_order_amount_ratio: "0.100000000000000000"
-max_reserve_coin_amount: "0"
-min_init_deposit_amount: "1000000"
-pool_creation_fee:
-- amount: "100000000"
-  denom: uatom
-pool_types:
-- description: ""
-  id: 1
-  max_reserve_coin_num: 2
-  min_reserve_coin_num: 2
-  name: DefaultPoolType
-swap_fee_rate: "0.003000000000000000"
-unit_batch_height: 1
-withdraw_fee_rate: "0.003000000000000000"
-```
-
-
-
-result of created liquidity pool
-
-```json
-pagination:
-  next_key: null
-  total: "1"
-pools:
-- id: "1"
-  pool_coin_denom: pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151
-  reserve_account_address: cosmos1qf9sqpexwyh3py786f8vx2w7fx8thpd5wz79sf
-  reserve_coin_denoms:
-  - ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C
-  - uatom
-  type_id: 1
-```
-
