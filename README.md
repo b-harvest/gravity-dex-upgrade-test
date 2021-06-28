@@ -8,9 +8,9 @@ To get more context about this repo, please reference the following [issue](http
 
 - Build this [gaia v4.2.1](https://github.com/cosmos/gaia/releases/tag/v4.2.1) that is used in `cosmoshub-4`
 
-- This [gaia version](https://github.com/b-harvest/gravity-dex/releases/tag/v1.0.3) is used for `Gravity-DEX` upgrade
+- This [gaia v5.0.0](https://github.com/cosmos/gaia/releases/tag/v5.0.0) is used for `Gravity-DEX` upgrade
 
-# Genesis configuration 
+# Genesis configuration
 
 - This `exported_genesis_with_height_6659211_sorted_origin.json` zip file is prepared in this repository. It is exported using `gaiad export` command on block height `6659211` from `cosmoshub-4` network. Unzip the attached genesis file to proceed the next steps in this guide.
 
@@ -222,9 +222,10 @@ gaiad version
 gaiad tx gov submit-proposal software-upgrade Gravity-DEX \
 --deposit 1000uatom \
 --title Gravity-DEX \
---upgrade-height 6659848 \
---upgrade-info v4.3.0-testhash \
---description testdescription \
+--upgrade-height {your target height, ex) 6910000} \
+--upgrade-info "v5.0.0-4760cf1f1266accec7a107f440d46d9724c6fd08" \
+--description "This on-chain upgrade governance proposal is to adopt the Gravity DEX protocol on the Cosmos Hub. By voting YES to this proposal, you approve of adding the Gravity DEX protocol on the Cosmos Hub.\\n\\n### Background\\n\\nIn July 2020, the Iqlusion team developed ATOM 2021 to drive the direction of the Cosmos Hub after the completion of the Cosmos whitepaper and IBC. It became clear that providing liquidity to new IBC connected zones was core the Hub's mission. \\n\\nTendermint ([https://tendermint.com](https://tendermint.com/)) and B-Harvest ([https://bharvest.io](https://bharvest.io/))  joined forces to produce and develop a Liquidity Module ([https://github.com/tendermint/liquidity](https://github.com/tendermint/liquidity)). In 2021 March, they submitted a signal governance proposal to ask the Atom delegator community about Gravity DEX (Liquidity Module) adoption on the Cosmos Hub. Prop38 was very well approved by the community ([https://www.mintscan.io/cosmos/proposals/38](https://www.mintscan.io/cosmos/proposals/38)).\\n\\nThis proposal completes the first leg of ATOM 2021 and achieves the goals of the signaling proposal by bringing an IBC compatible DEX to the Hub.\\n\\n### Ready for Production\\n\\nWith continuous quality improvement of the codebase, very wide test coverage, a codebase audit from Least Authority and Simply VC, and subsequent follow-up codebase strengthening, along with extensive simulation processes, we are now very confident to be ready for production utilization of the Gravity DEX (Liquidity Module) on the Cosmos Hub. The Gaia branch for the new release with Gravity DEX feature can be found [here](https://github.com/cosmos/gaia/releases/tag/v5.0.0)). Please also check out the [github repository](https://github.com/b-harvest/gravity-dex-upgrade-test) for the launch testing of Gaia with Gravity DEX.\\n\\n### On-Chain Upgrade Process\\n\\nWhen the network reaches the halt height, the state machine program of the Cosmos Hub will be halted. And then, all validators and node operators have to substitute the existing state machine binary to the new binary with the Gravity DEX feature. Because it is an onchain upgrade process, the blockchain will be continued with all the accumulated history with continuous block height.\\n\\n### Potential Risk Factors\\n\\nAlthough Tendermint executed very extensive testing and simulation, and conducted in-depth audits, and followed up with the corresponding codebase improvement, there always still exists a risk that the Cosmos Hub might experience problems due to potential bugs or errors from the new Gravity DEX feature. In the case of serious problems, validators should stop operating the network immediately, and use the fixed state machine program provided by Tendermint." \
+--gas 400000 \
 --from user1 \
 --keyring-backend test \
 --chain-id cosmoshub-4 \
@@ -252,15 +253,46 @@ gaiad query gov proposal 50 \
 // result of the proposal
 content:
   '@type': /cosmos.upgrade.v1beta1.SoftwareUpgradeProposal
-  description: testdescription
+  description: This on-chain upgrade governance proposal is to adopt the Gravity DEX
+    protocol on the Cosmos Hub. By voting YES to this proposal, you approve of adding
+    the Gravity DEX protocol on the Cosmos Hub.\n\n### Background\n\nIn July 2020,
+    the Iqlusion team developed ATOM 2021 to drive the direction of the Cosmos Hub
+    after the completion of the Cosmos whitepaper and IBC. It became clear that providing
+    liquidity to new IBC connected zones was core the Hub's mission. \n\nTendermint
+    ([https://tendermint.com](https://tendermint.com/)) and B-Harvest ([https://bharvest.io](https://bharvest.io/))  joined
+    forces to produce and develop a Liquidity Module ([https://github.com/tendermint/liquidity](https://github.com/tendermint/liquidity)).
+    In 2021 March, they submitted a signal governance proposal to ask the Atom delegator
+    community about Gravity DEX (Liquidity Module) adoption on the Cosmos Hub. Prop38
+    was very well approved by the community ([https://www.mintscan.io/cosmos/proposals/38](https://www.mintscan.io/cosmos/proposals/38)).\n\nThis
+    proposal completes the first leg of ATOM 2021 and achieves the goals of the signaling
+    proposal by bringing an IBC compatible DEX to the Hub.\n\n### Ready for Production\n\nWith
+    continuous quality improvement of the codebase, very wide test coverage, a codebase
+    audit from Least Authority and Simply VC, and subsequent follow-up codebase strengthening,
+    along with extensive simulation processes, we are now very confident to be ready
+    for production utilization of the Gravity DEX (Liquidity Module) on the Cosmos
+    Hub. The Gaia branch for the new release with Gravity DEX feature can be found
+    [here](https://github.com/cosmos/gaia/releases/tag/v5.0.0)). Please also check
+    out the [github repository](https://github.com/b-harvest/gravity-dex-upgrade-test)
+    for the launch testing of Gaia with Gravity DEX.\n\n### On-Chain Upgrade Process\n\nWhen
+    the network reaches the halt height, the state machine program of the Cosmos Hub
+    will be halted. And then, all validators and node operators have to substitute
+    the existing state machine binary to the new binary with the Gravity DEX feature.
+    Because it is an onchain upgrade process, the blockchain will be continued with
+    all the accumulated history with continuous block height.\n\n### Potential Risk
+    Factors\n\nAlthough Tendermint executed very extensive testing and simulation,
+    and conducted in-depth audits, and followed up with the corresponding codebase
+    improvement, there always still exists a risk that the Cosmos Hub might experience
+    problems due to potential bugs or errors from the new Gravity DEX feature. In
+    the case of serious problems, validators should stop operating the network immediately,
+    and use the fixed state machine program provided by Tendermint.
   plan:
-    height: "6659300"
-    info: v4.3.0-testhash
+    height: "6659310"
+    info: v5.0.0-4760cf1f1266accec7a107f440d46d9724c6fd08
     name: Gravity-DEX
     time: "0001-01-01T00:00:00Z"
     upgraded_client_state: null
   title: Gravity-DEX
-deposit_end_time: "2021-07-06T02:36:15.536556Z"
+deposit_end_time: "2021-07-12T15:44:27.561917Z"
 final_tally_result:
   abstain: "0"
   "no": "0"
@@ -268,12 +300,12 @@ final_tally_result:
   "yes": "72642221"
 proposal_id: "50"
 status: PROPOSAL_STATUS_PASSED
-submit_time: "2021-06-22T02:36:15.536556Z"
+submit_time: "2021-06-28T15:44:27.561917Z"
 total_deposit:
 - amount: "1000"
   denom: uatom
-voting_end_time: "2021-06-22T02:37:15.536556Z"
-voting_start_time: "2021-06-22T02:36:15.536556Z"
+voting_end_time: "2021-06-28T15:45:27.561917Z"
+voting_start_time: "2021-06-28T15:44:27.561917Z"
 ```
 ### 9. Restart node using new gaiad gravity-dex version,
 
@@ -287,7 +319,7 @@ The proposal has passed and it is all good to go. When `upgrade-height` is reach
 # https://github.com/b-harvest/gravity-dex/releases/tag/v1.0.4
 # latest add-liquidity-module-to-gaia branch
 gaiad version
--> HEAD-fd6bb727660a052bc1e702325acd28b02dfd6a39
+-> v5.0.0
 
 gaiad start --home $HOME1 --x-crisis-skip-assert-invariants
 gaiad start --home $HOME2 --x-crisis-skip-assert-invariants
@@ -324,9 +356,17 @@ gaiad query auth account cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6 \
 gaiad query auth account cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 \
 --node tcp://127.0.0.1:36657 
 
+# withdraw request
+gaiad tx liquidity withdraw 1 1000pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151 \
+--from user2 --keyring-backend test \
+--home data/cosmoshub-4/val2 \
+--chain-id cosmoshub-4 \
+--node tcp://127.0.0.1:36657
+
 # query balance after swap transacted 
 gaiad query bank balances cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 \
 --node tcp://127.0.0.1:36657 
+
 ```
 
 ```json
