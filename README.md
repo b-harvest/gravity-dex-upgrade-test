@@ -87,11 +87,13 @@ sed -i '' 's%A6apc7iThbRkwboKqPy6eXxxQvTH+0lNkXZvugDM9V4g%ApDOUyfcamDmnbEO7O4YKn
 ### 3. Change voting power and staking delegation to over 67%
 
 ```bash
-sed -i '' 's%13488360679504%600013488360679504%g' $EXPORTED_GENESIS
-sed -i '' 's%"power": "13488360"%"power": "6003488360"%g' $EXPORTED_GENESIS
-sed -i '' 's%274699904554428%600274699904554428%g' $EXPORTED_GENESIS
-sed -i '' 's%"25390741.000000000000000000"%"60000000025390741.000000000000000000"%g' $EXPORTED_GENESIS
-sed -i '' 's%"191488844"%"60191488844"%g' $EXPORTED_GENESIS
+sed -i '' 's%13488360679504%6013488360679504%g' $EXPORTED_GENESIS
+sed -i '' 's%"power": "13488360"%"power": "603488360"%g' $EXPORTED_GENESIS
+sed -i '' 's%274699904554428%1006274699904554428%g' $EXPORTED_GENESIS
+sed -i '' 's%"25390741.000000000000000000"%"6000000025390741.000000000000000000"%g' $EXPORTED_GENESIS
+sed -i '' 's%"191488844"%"6191488844"%g' $EXPORTED_GENESIS
+sed -i '' 's%"amount": "107120822"%"amount": "1000000000107120822"%g' $EXPORTED_GENESIS
+
 ```
 ### 4. Modify some gov parameters for test efficiency
 
@@ -462,7 +464,7 @@ p2p peers = 200
 
 ```diff
 --- exported_genesis_with_height_6659211_sorted_origin.json	2021-06-21 18:15:44.000000000 +0900
-+++ genesis.json	2021-07-05 14:41:18.000000000 +0900
++++ genesis.json	2021-07-05 19:23:47.000000000 +0900
 @@ -194199,10 +194199,10 @@
          {
            "@type": "/cosmos.auth.v1beta1.BaseAccount",
@@ -498,6 +500,15 @@ p2p peers = 200
            "coins": [
              {
                "amount": "10000000",
+@@ -2999993,7 +2999993,7 @@
+               "denom": "ibc/EC4B5D87917DD5668D9998146F82D70FDF86652DB333D04CE29D1EB18E296AF5"
+             },
+             {
+-              "amount": "107120822",
++              "amount": "1000000000107120822",
+               "denom": "uatom"
+             }
+           ]
 @@ -3621122,7 +3621122,7 @@
            "coins": []
          },
@@ -512,7 +523,7 @@ p2p peers = 200
          },
          {
 -          "amount": "274699904554428",
-+          "amount": "600274699904554428",
++          "amount": "6274699904554428",
            "denom": "uatom"
          }
        ]
@@ -575,7 +586,7 @@ p2p peers = 200
              "height": "0",
              "previous_period": "27294",
 -            "stake": "25390741.000000000000000000"
-+            "stake": "60000000025390741.000000000000000000"
++            "stake": "6000000025390741.000000000000000000"
            },
            "validator_address": "cosmosvaloper156gqf9837u7d4c4678yt3rl4ls9c5vuursrrzf"
          },
@@ -667,7 +678,7 @@ p2p peers = 200
        ],
        "voting_params": {
 -        "voting_period": "1209600s"
-+        "voting_period": "30s"
++        "voting_period": "60s"
        }
      },
      "ibc": {
@@ -790,7 +801,7 @@ p2p peers = 200
          {
            "delegator_address": "cosmos1ll705078lwg6yksn3flktpvzpe56gwvh7xmynw",
 -          "shares": "25390741.000000000000000000",
-+          "shares": "60000000025390741.000000000000000000",
++          "shares": "6000000025390741.000000000000000000",
            "validator_address": "cosmosvaloper156gqf9837u7d4c4678yt3rl4ls9c5vuursrrzf"
          },
          {
@@ -799,7 +810,7 @@ p2p peers = 200
        ],
        "exported": true,
 -      "last_total_power": "191488844",
-+      "last_total_power": "60191488844",
++      "last_total_power": "6191488844",
        "last_validator_powers": [
          {
            "address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys",
@@ -808,7 +819,7 @@ p2p peers = 200
          {
            "address": "cosmosvaloper156gqf9837u7d4c4678yt3rl4ls9c5vuursrrzf",
 -          "power": "13488360"
-+          "power": "6003488360"
++          "power": "603488360"
          },
          {
            "address": "cosmosvaloper15urq2dtp9qce4fyc85m6upwm9xul3049e02707",
@@ -829,7 +840,7 @@ p2p peers = 200
 +            "key": "oi55Dw+JjLQc4u1WlAS3FsGwh5fd5/N5cP3VOLnZ/H0="
            },
 -          "delegator_shares": "13488360679504.000000000000000000",
-+          "delegator_shares": "600013488360679504.000000000000000000",
++          "delegator_shares": "6013488360679504.000000000000000000",
            "description": {
              "details": "Exchange the world",
              "identity": "",
@@ -838,7 +849,7 @@ p2p peers = 200
            "operator_address": "cosmosvaloper156gqf9837u7d4c4678yt3rl4ls9c5vuursrrzf",
            "status": "BOND_STATUS_BONDED",
 -          "tokens": "13488360679504",
-+          "tokens": "600013488360679504",
++          "tokens": "6013488360679504",
            "unbonding_height": "0",
            "unbonding_time": "1970-01-01T00:00:00Z"
          },
@@ -874,7 +885,7 @@ p2p peers = 200
 +      "address": "7CB07B94FD743E2A8520C2B50DA4B03740643BF5",
        "name": "Binance Staking",
 -      "power": "13488360",
-+      "power": "6003488360",
++      "power": "603488360",
        "pub_key": {
          "type": "tendermint/PubKeyEd25519",
 -        "value": "W459Kbdx+LJQ7dLVASW6sAfdqWqNRSXnvc53r9aOx/o="
