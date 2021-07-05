@@ -89,7 +89,11 @@ sed -i '' 's%A6apc7iThbRkwboKqPy6eXxxQvTH+0lNkXZvugDM9V4g%ApDOUyfcamDmnbEO7O4YKn
 ```bash
 sed -i '' 's%13488360679504%6013488360679504%g' $EXPORTED_GENESIS
 sed -i '' 's%"power": "13488360"%"power": "603488360"%g' $EXPORTED_GENESIS
-sed -i '' 's%274699904554428%1006274699904554428%g' $EXPORTED_GENESIS
+
+sed -i '' 's%274699904554428%6274699904554428%g' $EXPORTED_GENESIS
+# missed this modification on public testnet genesis
+# sed -i '' 's%274699904554428%1006274699904554428%g' $EXPORTED_GENESIS
+
 sed -i '' 's%"25390741.000000000000000000"%"6000000025390741.000000000000000000"%g' $EXPORTED_GENESIS
 sed -i '' 's%"191488844"%"6191488844"%g' $EXPORTED_GENESIS
 sed -i '' 's%"amount": "107120822"%"amount": "1000000000107120822"%g' $EXPORTED_GENESIS
@@ -108,7 +112,7 @@ The following parameters are needed to be modified:
 sed -i '' 's%"amount": "64000000",%"amount": "1",%g' $EXPORTED_GENESIS
 sed -i '' 's%"quorum": "0.400000000000000000",%"quorum": "0.000000000000000001",%g' $EXPORTED_GENESIS
 sed -i '' 's%"threshold": "0.500000000000000000",%"threshold": "0.000000000000000001",%g' $EXPORTED_GENESIS
-sed -i '' 's%"voting_period": "1209600s"%"voting_period": "30s"%g' $EXPORTED_GENESIS
+sed -i '' 's%"voting_period": "1209600s"%"voting_period": "60s"%g' $EXPORTED_GENESIS
 ```
 ### 5. Initialize local chain
 
@@ -202,6 +206,14 @@ sed -i '' 's/pprof_laddr = "localhost:6060"/pprof_laddr = "localhost:'$VAL_2_PPR
 sed -i '' 's/addr_book_strict = true/addr_book_strict = false/g' $VAL_2_CHAIN_DIR/config/config.toml
 sed -i '' 's/addr_book_strict = true/addr_book_strict = false/g' $VAL_1_CHAIN_DIR/config/config.toml
 ```
+verify genesis hash after modification
+
+`cat genesis.json  | shasum -a 256`
+
+> `8be3029854293b0ccdfc7805e649360767ec4720620f585c44348629090a1974`
+
+
+
 ### 7. Let's start chain
 
 ```bash
@@ -416,11 +428,36 @@ pools:
 
 If you want to participate in the testnet as a validator, you can use the same account, validator key of the cosmoshub-4, or if you request an issue like [this](https://github.com/b-harvest/gravity-dex-upgrade-test/issues/1), we will send you some coins for the delegation manually.
 
+The modification of the current version of Genesis has some errors, so the invariant check may fail. So please use `--x-crisis-skip-assert-invariants` flag when starting Gaia. If some issue occurs due to that invariant on this testnet, we may make a decision to restart the new Genesis based on community opinion.
+
 
 
 ### Chain-ID
 
 `cosmoshub-4-upgrade-testnet`
+
+
+
+### Genesis
+
+`tar xvzf genesis.json.tar.gz2`
+
+`cat genesis.json  | shasum -a 256`
+
+> 8be3029854293b0ccdfc7805e649360767ec4720620f585c44348629090a1974
+
+
+
+### Binary
+
+The testnet was started based on [gaia v4.2.1](https://github.com/cosmos/gaia/releases/tag/v4.2.1) and upgraded to [gaia v5.0.0](https://github.com/cosmos/gaia/releases/tag/v5.0.0) on `6659230` Height by `SoftwareUpgradeProposal` [#50](http://49.247.196.44:1317/cosmos/gov/v1beta1/proposals/50).
+
+So when you start to sync your node, you have to use the [gaia v4.2.1](https://github.com/cosmos/gaia/releases/tag/v4.2.1), And when it stops at the `6659230` height with the below panic, you should restart using [gaia v5.0.0](https://github.com/cosmos/gaia/releases/tag/v5.0.0).
+
+```bash
+ERR UPGRADE "Gravity-DEX" NEEDED at height: 6659230: v5.0.0-4760cf1f1266accec7a107f440d46d9724c6fd08
+panic: UPGRADE "Gravity-DEX" NEEDED at height: 6659230: v5.0.0-4760cf1f1266accec7a107f440d46d9724c6fd08
+```
 
 
 
