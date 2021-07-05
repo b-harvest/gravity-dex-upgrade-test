@@ -1,6 +1,6 @@
 # Gravity-DEX Upgrade Test
 
-This repository describes procedures and contains results of upgrade test for the `Gravity-DEX` on the exported state of `cosmosub-4` chain.
+This repository describes procedures and contains results of upgrade test for the `Gravity-DEX` on the exported state of `cosmoshub-4` chain.
 
 To get more context about this repo, please reference the following [issue](https://github.com/tendermint/liquidity/issues/403) and [pull request](https://github.com/cosmos/gaia/pull/859).
 
@@ -351,7 +351,7 @@ gaiad query liquidity params \
 gaiad tx liquidity create-pool 1 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C,1000000uatom \
 --from user2 --keyring-backend test \
 --home data/cosmoshub-4/val2 \
---chain-id cosmoshub-4 \
+--chain-id cosmoshub-4-upgrade-testnet \
 --gas 300000 \
 --node tcp://127.0.0.1:36657
 
@@ -363,7 +363,7 @@ gaiad query liquidity pools \
 gaiad tx liquidity swap 1 1 100000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C 0.019 0.003 \
 --from user2 --keyring-backend test \
 --home data/cosmoshub-4/val2 \
---chain-id cosmoshub-4 \
+--chain-id cosmoshub-4-upgrade-testnet \
 --node tcp://127.0.0.1:36657
 
 gaiad query auth account cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6 \
@@ -376,7 +376,7 @@ gaiad query auth account cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 \
 gaiad tx liquidity withdraw 1 1000pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151 \
 --from user2 --keyring-backend test \
 --home data/cosmoshub-4/val2 \
---chain-id cosmoshub-4 \
+--chain-id cosmoshub-4-upgrade-testnet \
 --node tcp://127.0.0.1:36657
 
 # query balance after swap transacted 
