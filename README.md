@@ -406,6 +406,56 @@ pools:
   - uatom
   type_id: 1
 ```
+
+
+# Public Testnet info
+
+### Join Validator
+
+If you want to participate in the testnet as a validator, you can use the same account, validator key of the cosmoshub-4, or if you request an issue like [this](https://github.com/b-harvest/gravity-dex-upgrade-test/issues/1), we will send you some coins for the delegation manually.
+
+
+
+### Chain-ID
+
+`cosmoshub-4-upgrade-testnet`
+
+
+
+### P2P
+
+`791dd7d0d217e8a761261ab7a2d8105326f46604@49.247.196.44:26656`
+
+`74ca644dd1cce437aed792000066d2752aa69904@49.247.196.46:26656`
+
+
+
+### Endpoint
+
+`49.247.196.44:1317`
+
+`49.247.196.44:26657`
+
+`49.247.196.44:9090`
+
+
+
+`49.247.196.46:1317`
+
+`49.247.196.46:26657`
+
+`49.247.196.46:9090`
+
+
+
+min gas = 0
+
+p2p peers = 200
+
+
+
+
+
 # (Research) Modified `genesis.json`
 
 `diff exported_genesis_with_height_6659211_sorted_origin.json genesis.json -u`
