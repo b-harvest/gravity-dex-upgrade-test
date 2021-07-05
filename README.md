@@ -56,8 +56,10 @@ The following files and mnemonics for the two different accounts are already pro
 # configure variables
 export EXPORTED_GENESIS=genesis.json
 export BINARY=gaiad
-export CHAIN_ID=cosmoshub-4
+export CHAIN_ID=cosmoshub-4-upgrade-testnet
 export CHAIN_DIR=./data
+
+sed -i '' 's%"chain_id": "cosmoshub-4",%"chain_id": "cosmoshub-4-upgrade-testnet",%g' $EXPORTED_GENESIS
 
 # substitue validator1
 sed -i '' 's%cOQZvh/h9ZioSeUMZB/1Vy1Xo5x2sjrVjlE/qHnYifM=%qwiUMxz3llsy45fPvM0a8+XQeAJLvrX3QAEJmRMEEoU=%g' $EXPORTED_GENESIS
@@ -85,11 +87,11 @@ sed -i '' 's%A6apc7iThbRkwboKqPy6eXxxQvTH+0lNkXZvugDM9V4g%ApDOUyfcamDmnbEO7O4YKn
 ### 3. Change voting power and staking delegation to over 67%
 
 ```bash
-sed -i '' 's%13488360679504%6013488360679504%g' $EXPORTED_GENESIS
-sed -i '' 's%"power": "13488360"%"power": "603488360"%g' $EXPORTED_GENESIS
-sed -i '' 's%274699904554428%6274699904554428%g' $EXPORTED_GENESIS
-sed -i '' 's%"25390741.000000000000000000"%"6000000025390741.000000000000000000"%g' $EXPORTED_GENESIS
-sed -i '' 's%"191488844"%"6191488844"%g' $EXPORTED_GENESIS
+sed -i '' 's%13488360679504%600013488360679504%g' $EXPORTED_GENESIS
+sed -i '' 's%"power": "13488360"%"power": "6003488360"%g' $EXPORTED_GENESIS
+sed -i '' 's%274699904554428%600274699904554428%g' $EXPORTED_GENESIS
+sed -i '' 's%"25390741.000000000000000000"%"60000000025390741.000000000000000000"%g' $EXPORTED_GENESIS
+sed -i '' 's%"191488844"%"60191488844"%g' $EXPORTED_GENESIS
 ```
 ### 4. Modify some gov parameters for test efficiency
 
@@ -111,7 +113,7 @@ sed -i '' 's%"voting_period": "1209600s"%"voting_period": "30s"%g' $EXPORTED_GEN
 ```bash
 export EXPORTED_GENESIS=genesis.json
 export BINARY=gaiad
-export CHAIN_ID=cosmoshub-4
+export CHAIN_ID=cosmoshub-4-upgrade-testnet
 export CHAIN_DIR=./data
 
 export VAL_1_CHAIN_DIR=$CHAIN_DIR/$CHAIN_ID/val1
@@ -228,7 +230,7 @@ gaiad tx gov submit-proposal software-upgrade Gravity-DEX \
 --gas 400000 \
 --from user1 \
 --keyring-backend test \
---chain-id cosmoshub-4 \
+--chain-id cosmoshub-4-upgrade-testnet \
 --home data/cosmoshub-4/val2 \
 --node tcp://localhost:36657
 
@@ -237,14 +239,14 @@ gaiad tx gov submit-proposal software-upgrade Gravity-DEX \
 gaiad tx gov vote 50 yes -y \
 --from user1 \
 --keyring-backend test \
---chain-id cosmoshub-4 \
+--chain-id cosmoshub-4-upgrade-testnet \
 --home data/cosmoshub-4/val2 \
 --node tcp://127.0.0.1:36657 
 
 # query the proposal to check if it is passed
 # the status should be PROPOSAL_STATUS_PASSED
 gaiad query gov proposal 50 \
---chain-id cosmoshub-4 \
+--chain-id cosmoshub-4-upgrade-testnet \
 --home data/cosmoshub-4/val2 \
 --node tcp://127.0.0.1:36657 
 ```
@@ -410,7 +412,7 @@ pools:
 
 ```diff
 --- exported_genesis_with_height_6659211_sorted_origin.json	2021-06-21 18:15:44.000000000 +0900
-+++ genesis.json	2021-06-22 15:21:16.000000000 +0900
++++ genesis.json	2021-07-05 14:41:18.000000000 +0900
 @@ -194199,10 +194199,10 @@
          {
            "@type": "/cosmos.auth.v1beta1.BaseAccount",
@@ -460,7 +462,7 @@ pools:
          },
          {
 -          "amount": "274699904554428",
-+          "amount": "6274699904554428",
++          "amount": "600274699904554428",
            "denom": "uatom"
          }
        ]
@@ -523,7 +525,7 @@ pools:
              "height": "0",
              "previous_period": "27294",
 -            "stake": "25390741.000000000000000000"
-+            "stake": "6000000025390741.000000000000000000"
++            "stake": "60000000025390741.000000000000000000"
            },
            "validator_address": "cosmosvaloper156gqf9837u7d4c4678yt3rl4ls9c5vuursrrzf"
          },
@@ -615,7 +617,7 @@ pools:
        ],
        "voting_params": {
 -        "voting_period": "1209600s"
-+        "voting_period": "60s"
++        "voting_period": "30s"
        }
      },
      "ibc": {
@@ -738,7 +740,7 @@ pools:
          {
            "delegator_address": "cosmos1ll705078lwg6yksn3flktpvzpe56gwvh7xmynw",
 -          "shares": "25390741.000000000000000000",
-+          "shares": "6000000025390741.000000000000000000",
++          "shares": "60000000025390741.000000000000000000",
            "validator_address": "cosmosvaloper156gqf9837u7d4c4678yt3rl4ls9c5vuursrrzf"
          },
          {
@@ -747,7 +749,7 @@ pools:
        ],
        "exported": true,
 -      "last_total_power": "191488844",
-+      "last_total_power": "6191488844",
++      "last_total_power": "60191488844",
        "last_validator_powers": [
          {
            "address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys",
@@ -756,7 +758,7 @@ pools:
          {
            "address": "cosmosvaloper156gqf9837u7d4c4678yt3rl4ls9c5vuursrrzf",
 -          "power": "13488360"
-+          "power": "603488360"
++          "power": "6003488360"
          },
          {
            "address": "cosmosvaloper15urq2dtp9qce4fyc85m6upwm9xul3049e02707",
@@ -777,7 +779,7 @@ pools:
 +            "key": "oi55Dw+JjLQc4u1WlAS3FsGwh5fd5/N5cP3VOLnZ/H0="
            },
 -          "delegator_shares": "13488360679504.000000000000000000",
-+          "delegator_shares": "6013488360679504.000000000000000000",
++          "delegator_shares": "600013488360679504.000000000000000000",
            "description": {
              "details": "Exchange the world",
              "identity": "",
@@ -786,10 +788,19 @@ pools:
            "operator_address": "cosmosvaloper156gqf9837u7d4c4678yt3rl4ls9c5vuursrrzf",
            "status": "BOND_STATUS_BONDED",
 -          "tokens": "13488360679504",
-+          "tokens": "6013488360679504",
++          "tokens": "600013488360679504",
            "unbonding_height": "0",
            "unbonding_time": "1970-01-01T00:00:00Z"
          },
+@@ -11526724,7 +11526724,7 @@
+     "upgrade": {},
+     "vesting": {}
+   },
+-  "chain_id": "cosmoshub-4",
++  "chain_id": "cosmoshub-4-upgrade-testnet",
+   "consensus_params": {
+     "block": {
+       "max_bytes": "200000",
 @@ -11526747,12 +11526747,12 @@
    "initial_height": "6659211",
    "validators": [
@@ -813,7 +824,7 @@ pools:
 +      "address": "7CB07B94FD743E2A8520C2B50DA4B03740643BF5",
        "name": "Binance Staking",
 -      "power": "13488360",
-+      "power": "603488360",
++      "power": "6003488360",
        "pub_key": {
          "type": "tendermint/PubKeyEd25519",
 -        "value": "W459Kbdx+LJQ7dLVASW6sAfdqWqNRSXnvc53r9aOx/o="
