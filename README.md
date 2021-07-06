@@ -56,10 +56,10 @@ The following files and mnemonics for the two different accounts are already pro
 # configure variables
 export EXPORTED_GENESIS=genesis.json
 export BINARY=gaiad
-export CHAIN_ID=cosmoshub-4-upgrade-testnet
+export CHAIN_ID=cosmoshub-4-upgrade-testnet-1001
 export CHAIN_DIR=./data
 
-sed -i '' 's%"chain_id": "cosmoshub-4",%"chain_id": "cosmoshub-4-upgrade-testnet",%g' $EXPORTED_GENESIS
+sed -i '' 's%"chain_id": "cosmoshub-4",%"chain_id": "cosmoshub-4-upgrade-testnet-1001",%g' $EXPORTED_GENESIS
 
 # substitue validator1
 sed -i '' 's%cOQZvh/h9ZioSeUMZB/1Vy1Xo5x2sjrVjlE/qHnYifM=%qwiUMxz3llsy45fPvM0a8+XQeAJLvrX3QAEJmRMEEoU=%g' $EXPORTED_GENESIS
@@ -87,15 +87,27 @@ sed -i '' 's%A6apc7iThbRkwboKqPy6eXxxQvTH+0lNkXZvugDM9V4g%ApDOUyfcamDmnbEO7O4YKn
 ### 3. Change voting power and staking delegation to over 67%
 
 ```bash
-sed -i '' 's%13488360679504%6013488360679504%g' $EXPORTED_GENESIS
-sed -i '' 's%"power": "13488360"%"power": "603488360"%g' $EXPORTED_GENESIS
-
-sed -i '' 's%274699904554428%6274699904554428%g' $EXPORTED_GENESIS
-# missed this modification on public testnet genesis
-# sed -i '' 's%274699904554428%1006274699904554428%g' $EXPORTED_GENESIS
-
+# fix a delegation amount for over 67%
 sed -i '' 's%"25390741.000000000000000000"%"6000000025390741.000000000000000000"%g' $EXPORTED_GENESIS
+
+# fix power of the validator
+sed -i '' 's%13488360679504%6013488360679504%g' $EXPORTED_GENESIS
+sed -i '' 's%"power": "13488360"%"power": "6013488360"%g' $EXPORTED_GENESIS
+
+# fix last_total_power
 sed -i '' 's%"191488844"%"6191488844"%g' $EXPORTED_GENESIS
+
+
+#sed -i '' 's%274699904554428%6274699904554428%g' $EXPORTED_GENESIS
+# missed this modification on public testnet genesis
+
+# fix total supply of uatom
+sed -i '' 's%274699904554428%1006274699904554428%g' $EXPORTED_GENESIS
+
+# fix balance of bonded_tokens_pool module account
+sed -i '' 's%191488904896901%6191488904896901%g' $EXPORTED_GENESIS
+
+# fix the balance of a account to use as a faucet on testnet
 sed -i '' 's%"amount": "107120822"%"amount": "1000000000107120822"%g' $EXPORTED_GENESIS
 
 ```
@@ -210,7 +222,7 @@ verify genesis hash after modification
 
 `cat genesis.json  | shasum -a 256`
 
-> `8be3029854293b0ccdfc7805e649360767ec4720620f585c44348629090a1974`
+> `e0143b053719f78d43a2487e1de5a8d2daeb3e51694812e313edaf743f799c71`
 
 
 
@@ -244,7 +256,7 @@ gaiad tx gov submit-proposal software-upgrade Gravity-DEX \
 --gas 400000 \
 --from user1 \
 --keyring-backend test \
---chain-id cosmoshub-4-upgrade-testnet \
+--chain-id cosmoshub-4-upgrade-testnet-1001 \
 --home data/cosmoshub-4/val2 \
 --node tcp://localhost:36657
 
@@ -253,14 +265,14 @@ gaiad tx gov submit-proposal software-upgrade Gravity-DEX \
 gaiad tx gov vote 50 yes -y \
 --from user1 \
 --keyring-backend test \
---chain-id cosmoshub-4-upgrade-testnet \
+--chain-id cosmoshub-4-upgrade-testnet-1001 \
 --home data/cosmoshub-4/val2 \
 --node tcp://127.0.0.1:36657 
 
 # query the proposal to check if it is passed
 # the status should be PROPOSAL_STATUS_PASSED
 gaiad query gov proposal 50 \
---chain-id cosmoshub-4-upgrade-testnet \
+--chain-id cosmoshub-4-upgrade-testnet-1001 \
 --home data/cosmoshub-4/val2 \
 --node tcp://127.0.0.1:36657 
 ```
@@ -351,7 +363,7 @@ gaiad query liquidity params \
 gaiad tx liquidity create-pool 1 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C,1000000uatom \
 --from user2 --keyring-backend test \
 --home data/cosmoshub-4/val2 \
---chain-id cosmoshub-4-upgrade-testnet \
+--chain-id cosmoshub-4-upgrade-testnet-1001 \
 --gas 300000 \
 --node tcp://127.0.0.1:36657
 
@@ -363,7 +375,7 @@ gaiad query liquidity pools \
 gaiad tx liquidity swap 1 1 100000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C 0.019 0.003 \
 --from user2 --keyring-backend test \
 --home data/cosmoshub-4/val2 \
---chain-id cosmoshub-4-upgrade-testnet \
+--chain-id cosmoshub-4-upgrade-testnet-1001 \
 --node tcp://127.0.0.1:36657
 
 gaiad query auth account cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6 \
@@ -376,7 +388,7 @@ gaiad query auth account cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 \
 gaiad tx liquidity withdraw 1 1000pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151 \
 --from user2 --keyring-backend test \
 --home data/cosmoshub-4/val2 \
---chain-id cosmoshub-4-upgrade-testnet \
+--chain-id cosmoshub-4-upgrade-testnet-1001 \
 --node tcp://127.0.0.1:36657
 
 # query balance after swap transacted 
@@ -434,7 +446,7 @@ The modification of the current version of Genesis has some errors, so the invar
 
 ### Chain-ID
 
-`cosmoshub-4-upgrade-testnet`
+`cosmoshub-4-upgrade-testnet-1001`
 
 
 
@@ -444,7 +456,7 @@ The modification of the current version of Genesis has some errors, so the invar
 
 `cat genesis.json  | shasum -a 256`
 
-> 8be3029854293b0ccdfc7805e649360767ec4720620f585c44348629090a1974
+> e0143b053719f78d43a2487e1de5a8d2daeb3e51694812e313edaf743f799c71
 
 
 
@@ -501,7 +513,7 @@ p2p peers = 200
 
 ```diff
 --- exported_genesis_with_height_6659211_sorted_origin.json	2021-06-21 18:15:44.000000000 +0900
-+++ genesis.json	2021-07-05 19:23:47.000000000 +0900
++++ genesis.json	2021-07-06 11:13:39.000000000 +0900
 @@ -194199,10 +194199,10 @@
          {
            "@type": "/cosmos.auth.v1beta1.BaseAccount",
@@ -546,6 +558,15 @@ p2p peers = 200
                "denom": "uatom"
              }
            ]
+@@ -3425455,7 +3425455,7 @@
+           "address": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh",
+           "coins": [
+             {
+-              "amount": "191488904896901",
++              "amount": "6191488904896901",
+               "denom": "uatom"
+             }
+           ]
 @@ -3621122,7 +3621122,7 @@
            "coins": []
          },
@@ -560,7 +581,7 @@ p2p peers = 200
          },
          {
 -          "amount": "274699904554428",
-+          "amount": "6274699904554428",
++          "amount": "1006274699904554428",
            "denom": "uatom"
          }
        ]
@@ -856,7 +877,7 @@ p2p peers = 200
          {
            "address": "cosmosvaloper156gqf9837u7d4c4678yt3rl4ls9c5vuursrrzf",
 -          "power": "13488360"
-+          "power": "603488360"
++          "power": "6013488360"
          },
          {
            "address": "cosmosvaloper15urq2dtp9qce4fyc85m6upwm9xul3049e02707",
@@ -895,7 +916,7 @@ p2p peers = 200
      "vesting": {}
    },
 -  "chain_id": "cosmoshub-4",
-+  "chain_id": "cosmoshub-4-upgrade-testnet",
++  "chain_id": "cosmoshub-4-upgrade-testnet-1001",
    "consensus_params": {
      "block": {
        "max_bytes": "200000",
@@ -922,7 +943,7 @@ p2p peers = 200
 +      "address": "7CB07B94FD743E2A8520C2B50DA4B03740643BF5",
        "name": "Binance Staking",
 -      "power": "13488360",
-+      "power": "603488360",
++      "power": "6013488360",
        "pub_key": {
          "type": "tendermint/PubKeyEd25519",
 -        "value": "W459Kbdx+LJQ7dLVASW6sAfdqWqNRSXnvc53r9aOx/o="
