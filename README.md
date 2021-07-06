@@ -462,13 +462,13 @@ The modification of the current version of Genesis has some errors, so the invar
 
 ### Binary
 
-The testnet was started based on [gaia v4.2.1](https://github.com/cosmos/gaia/releases/tag/v4.2.1) and upgraded to [gaia v5.0.0](https://github.com/cosmos/gaia/releases/tag/v5.0.0) on `6659230` Height by `SoftwareUpgradeProposal` [#50](http://49.247.196.44:1317/cosmos/gov/v1beta1/proposals/50).
+The testnet was started based on [gaia v4.2.1](https://github.com/cosmos/gaia/releases/tag/v4.2.1) and upgraded to [gaia v5.0.0](https://github.com/cosmos/gaia/releases/tag/v5.0.0) on `6659381` Height by `SoftwareUpgradeProposal` [#50](http://49.247.196.44:1317/cosmos/gov/v1beta1/proposals/50).
 
-So when you start to sync your node, you have to use the [gaia v4.2.1](https://github.com/cosmos/gaia/releases/tag/v4.2.1), And when it stops at the `6659230` height with the below panic, you should restart using [gaia v5.0.0](https://github.com/cosmos/gaia/releases/tag/v5.0.0).
+So when you start to sync your node, you have to use the [gaia v4.2.1](https://github.com/cosmos/gaia/releases/tag/v4.2.1), And when it stops at the `6659381` height with the below panic, you should restart using [gaia v5.0.0](https://github.com/cosmos/gaia/releases/tag/v5.0.0).
 
 ```bash
-ERR UPGRADE "Gravity-DEX" NEEDED at height: 6659230: v5.0.0-4760cf1f1266accec7a107f440d46d9724c6fd08
-panic: UPGRADE "Gravity-DEX" NEEDED at height: 6659230: v5.0.0-4760cf1f1266accec7a107f440d46d9724c6fd08
+ERR UPGRADE "Gravity-DEX" NEEDED at height: 6659381: v5.0.0-4760cf1f1266accec7a107f440d46d9724c6fd08
+panic: UPGRADE "Gravity-DEX" NEEDED at height: 6659381: v5.0.0-4760cf1f1266accec7a107f440d46d9724c6fd08
 ```
 
 
