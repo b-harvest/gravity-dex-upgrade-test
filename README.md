@@ -18,7 +18,7 @@ To get more context about this repo, please reference the following [issue](http
 
 ## Unzip the tar files and verify the hashes
 
-As stated above, skip the below steps if you decide to use `genesis.json.tar.gz2`.
+As stated above, skip the below steps if you decide to use `genesis.json.tar.bz2`.
 
 ### 1. Verify the hash and copy exported state file
 
@@ -440,19 +440,23 @@ pools:
 
 If you want to participate in the testnet as a validator, you can use the same account, validator key of the cosmoshub-4, or if you request an issue like [this](https://github.com/b-harvest/gravity-dex-upgrade-test/issues/1), we will send you some coins for the delegation manually.
 
-The modification of the current version of Genesis has some errors, so the invariant check may fail. So please use `--x-crisis-skip-assert-invariants` flag when starting Gaia. If some issue occurs due to that invariant on this testnet, we may make a decision to restart the new Genesis based on community opinion.
-
-
 
 ### Chain-ID
 
-`cosmoshub-4-upgrade-testnet-1001`
+⚠️ Latest testnet:`cosmoshub-4-upgrade-testnet-1001`⚠️  July 6, 2021 2:00 GMT
 
+### Update History
+
+#### July 6, 2021 2:00 GMT - cosmoshub-4-upgrade-testnet-1001
+
+`cosmoshub-4-upgrade-testnet` was updated to `cosmoshub-4-upgrade-testnet-1001` for fixing invariant errors
 
 
 ### Genesis
 
-`tar xvzf genesis.json.tar.gz2`
+Download the genesis here: [genesis.json.tar.bz2](https://github.com/b-harvest/gravity-dex-upgrade-test/blob/master/genesis.json.tar.bz2) of latest testnet:`cosmoshub-4-upgrade-testnet-1001`⚠️  July 6, 2021 2:00 GMT
+
+`tar xvzf genesis.json.tar.bz2`
 
 `cat genesis.json  | shasum -a 256`
 
