@@ -1,6 +1,7 @@
-# local chain data
-data
+# v5.0.0
+v5.0.0/exported_genesis_with_height_6659211_sorted_origin.json
+v5.0.0/genesis.json
 
-# genesis files
-exported_genesis_with_height_6659211_sorted_origin.json
-genesis.json
+# v5.0.5
+v5.0.5/exported_genesis_with_height_7304500.json
+v5.0.5/genesis.json
