@@ -83,26 +83,26 @@ sed -i '' 's%"25390741.000000000000000000"%"6000000025390741.000000000000000000"
 #
 # Binance Staking validator's "delegator_shares" and "tokens"
 #
-sed -i '' 's%13991908901944%6013488360679504%g' genesis.json
-sed -i '' 's%"power": "13991908"%"power": "6013488360"%g' genesis.json
+sed -i '' 's%13991908901944%6013991908901944%g' genesis.json
+sed -i '' 's%"power": "13991908"%"power": "6013991908"%g' genesis.json
 
 # fix last_total_power
-sed -i '' 's%"191488844"%"6191488844"%g' genesis.json
+sed -i '' 's%"194093279"%"6194093279"%g' genesis.json
 
 # fix total supply of uatom
-sed -i '' 's%277549930240869%1006274699904554428%g' genesis.json
+sed -i '' 's%277549930240869%1006277549930240869%g' genesis.json
 
 # fix balance of bonded_tokens_pool module account
 #
 # cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh
 #
-sed -i '' 's%194093338099942%6191488904896901%g' genesis.json
+sed -i '' 's%194093338099942%6194093338099942%g' genesis.json
 
 # fix the balance of a account to use as a faucet on testnet
 #
 # substituted user2 account: cosmos1z98eg2ztdp2glyla62629nrlvczg8s7f0tm3dx --> cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9
 #
-sed -i '' 's%"amount": "72177323"%"amount": "1000000000107120822"%g' genesis.json
+sed -i '' 's%"amount": "72177323"%"amount": "1000000000072177323"%g' genesis.json
 ```
 
 ### Step 4. Modify `gov` parameters for test efficiency
@@ -208,13 +208,19 @@ export VAL_2_P2P_PORT=36656
 export VAL_2_RPC_PORT=36657
 export VAL_2_API_PORT=1327
 export VAL_2_GRPC_PORT=9080
+export VAL_2_GRPC_WEB_SERVER_PORT=9081
+export VAL_2_ROSETTA_API_PORT=8081
 export VAL_2_PPROF_PORT=6061
 export VAL_2_NODE_ID=$($BINARY tendermint --home $VAL_2_CHAIN_DIR show-node-id)
 
+
+sed -i '' 's/enable = true/enable = false/g' $VAL_1_CHAIN_DIR/config/app.toml # disable all for val1 to prevent from colluding ports
 sed -i '' 's#"tcp://127.0.0.1:26657"#"tcp://0.0.0.0:'"$VAL_2_RPC_PORT"'"#g' $VAL_2_CHAIN_DIR/config/config.toml
 sed -i '' 's#"tcp://0.0.0.0:26656"#"tcp://0.0.0.0:'"$VAL_2_P2P_PORT"'"#g' $VAL_2_CHAIN_DIR/config/config.toml
 sed -i '' 's#"tcp://0.0.0.0:1317"#"tcp://0.0.0.0:'"$VAL_2_API_PORT"'"#g' $VAL_2_CHAIN_DIR/config/app.toml
 sed -i '' 's#"0.0.0.0:9090"#"0.0.0.0:'"$VAL_2_GRPC_PORT"'"#g' $VAL_2_CHAIN_DIR/config/app.toml
+sed -i '' 's#"0.0.0.0:9091"#"0.0.0.0:'"$VAL_2_GRPC_WEB_SERVER_PORT"'"#g' $VAL_2_CHAIN_DIR/config/app.toml
+sed -i '' 's#":8080"#":'"$VAL_2_ROSETTA_API_PORT"'"#g' $VAL_2_CHAIN_DIR/config/app.toml
 sed -i '' 's/enable = false/enable = true/g' $VAL_2_CHAIN_DIR/config/app.toml
 sed -i '' 's/swagger = false/swagger = true/g' $VAL_2_CHAIN_DIR/config/app.toml
 sed -i '' 's/persistent_peers = ""/persistent_peers = "'$VAL_2_NODE_ID'@'localhost':'$VAL_2_P2P_PORT'"/g' $VAL_1_CHAIN_DIR/config/config.toml
@@ -227,7 +233,7 @@ sed -i '' 's/addr_book_strict = true/addr_book_strict = false/g' $VAL_1_CHAIN_DI
 
 # verify genesis hash after the modification 
 # 
-# 683f74d749a19e03029eed7d9d0c8bb7b9d4949ad545180a0eaf1c4fc66ae64b
+# 238ce65ca9f1b112cf3480de99bd0fdd9a65c54cf71ea155f0ba9ea897cffc56
 #
 cat genesis.json  | shasum -a 256
 ```
