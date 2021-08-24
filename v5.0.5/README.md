@@ -7,7 +7,7 @@
 
 ## Option 1: Fast track
 
-We have prepared a genesis file `genesis.json.tar.bz2` which was obtained after going from "Step 1 ~ 5" in Option 2. Uncompress the genesis file and use it as the genesis data to mock the upgrade simulation test. You can go to "Step 5. Initialize local chain" to proceed.
+We have prepared a genesis file `genesis.json.tar.bz2` which was obtained after going from "Step 1 to 5" in Option 2. Uncompress the genesis file and use it as the genesis data to mock the upgrade simulation test. You can go to `Step 4` to proceed.
 
 ```bash
 # uncompress the file
@@ -235,7 +235,7 @@ cat genesis.json  | shasum -a 256
 238ce65ca9f1b112cf3480de99bd0fdd9a65c54cf71ea155f0ba9ea897cffc56
 ```
 
-### 6. Start the chain
+### Step 6. Start the chain
 
 Open up two terminals and start 2 validator nodes. 
 
@@ -257,7 +257,7 @@ export HOME2=./data/$CHAIN_ID/val2
 $BINARY start --home $HOME2 --x-crisis-skip-assert-invariants
 ```
 
-### 7. Send an upgrade proposal to the network
+### Step 7. Send an upgrade proposal to the network
 
 Open up terminal 3 to send an upgrade proposal along with a deposit and a vote.
 
@@ -368,7 +368,7 @@ voting_end_time: "2021-08-24T02:09:31.975946Z"
 voting_start_time: "2021-08-24T02:08:31.975946Z"
 ```
 
-### 8. Restart node using new gaiad gravity-dex version,
+### Step 8. Restart node using new gaiad gravity-dex version
 
 The proposal has passed and it is all good to go. When `upgrade-height` is reached, the node must be halted for upgrade.
 
@@ -396,7 +396,7 @@ gaiad start --home $HOME1 --x-crisis-skip-assert-invariants
 gaiad start --home $HOME2 --x-crisis-skip-assert-invariants
 ```
 
-### 9. Test liquidity module
+### Step 9. Test liquidity module
 
 Let's first query the values are set as liquidity parameter.
 
