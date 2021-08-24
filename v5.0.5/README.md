@@ -2,34 +2,37 @@
 
 ## Versions
 
-Currently, `cosmoshub-4` uses [gaia v5.0.5](https://github.com/cosmos/gaia/releases/tag/v5.0.5).
+- Cosmos Hub Mainnet `cosmoshub-4` currently uses [gaia v5.0.5](https://github.com/cosmos/gaia/releases/tag/v5.0.5).
+- [Upgrade `gaiad` version with Gravity DEX that is rebased to Cosmos SDK v0.43.0](https://github.com/b-harvest/gravity-dex/blob/upgrade-liquidity-module-based-sdk-43)
 
 ## Option 1: Fast track
 
-This `genesis.json.tar.bz2` zip file is the tar acchive compressed file that is already completed all the modifications and it is ready to be used right away. You can skip the next steps and go to "Step 5. Initialize local chain" to proceed the upgrade simulation test.
+We have prepared a genesis file `genesis.json.tar.bz2` which was obtained after going from "Step 1 ~ 5" in Option 2. Uncompress the genesis file and use it as the genesis data to mock the upgrade simulation test. You can go to "Step 5. Initialize local chain" to proceed.
 
-```bash
-# unzip the tar archived compressed file
+```bash=
+# uncompress the file
 tar xvzf genesis.json.tar.bz2
 
 # verify the hash
-# it should return 238ce65ca9f1b112cf3480de99bd0fdd9a65c54cf71ea155f0ba9ea897cffc56
 cat genesis.json | shasum -a 256
+> 
+238ce65ca9f1b112cf3480de99bd0fdd9a65c54cf71ea155f0ba9ea897cffc56
 ```
 
 ## Option 2: Step by step guide
 
-The `exported_genesis_with_height_7304500_sorted.json.tar.bz2` tar archive compressed file is already prepared in this repository. It is exported using the `gaia export --height 7304500` command from `cosmoshub-4` network and compress the file by `tar -cvjSf exported_genesis_with_height_7304500.json.tar.bz2 exported_genesis_with_height_7304500.json`. 
+We have prepared a genesis file `exported_genesis_with_height_7304500_sorted.json.tar.bz2` which was obtained by `gaia export --height 7304500` command from `cosmoshub-4` network and compressed the file by `tar -cvjSf exported_genesis_with_height_7304500.json.tar.bz2 exported_genesis_with_height_7304500.json`. Uncompress the genesis file and use it as the genesis data to mock the upgrade.
 
-### Step 1. Unzip the prepared genesis file
+### Step 1. Uncompress the prepared genesis file
 
 ```bash
-# unzip the tar archived compressed file
+# uncompress the file
 tar xvzf exported_genesis_with_height_7304500_sorted.json.tar.bz2
 
 # verify the hash
-# it should return df10480978a9a211fbc2f82865659c1298f1ba97a3fee37512b299102fa1e9c3
 cat exported_genesis_with_height_7304500_sorted.json | shasum -a 256
+>
+df10480978a9a211fbc2f82865659c1298f1ba97a3fee37512b299102fa1e9c3
 
 # copy the file and name it to genesis.json
 cp exported_genesis_with_height_7304500_sorted.json genesis.json
@@ -116,7 +119,7 @@ sed -i '' 's%"amount": "72177323"%"amount": "1000000000072177323"%g' genesis.jso
 
 ### Step 4. Modify `gov` parameters for test efficiency
 
-Modifications for the following `gov` parameters are needed.
+The following `gov` parameters are needed to be modified:
 
 - minimum deposit amount
 - quorum
@@ -129,7 +132,7 @@ sed -i '' 's%"quorum": "0.400000000000000000",%"quorum": "0.000000000000000001",
 sed -i '' 's%"threshold": "0.500000000000000000",%"threshold": "0.000000000000000001",%g' genesis.json
 sed -i '' 's%"voting_period": "1209600s"%"voting_period": "60s"%g' genesis.json
 ```
-### Step 5. Initialize local chain
+### Step 5. Initialize the chain
 
 ```bash
 export EXPORTED_GENESIS=genesis.json
@@ -186,7 +189,9 @@ echo $USER_2_MNEMONIC | $BINARY --home $USER_2_CHAIN_DIR keys add $USER_2_KEY_NA
 #   pubkeys: []
 ```
 
-### Step 5. Copy exported genesis file and configure `config.toml` and `app.toml`
+### Step 6. Configuration
+
+Copy the genesis file and new validator consensus keys to the designated directories. And configure settings in both `config.toml` and `app.toml`
 
 ```bash
 # copy genesis file to the designated directories and copy validator consensus key files
@@ -216,6 +221,8 @@ sed -i '' 's#"0.0.0.0:9091"#"0.0.0.0:'"$VAL_2_GRPC_WEB_SERVER_PORT"'"#g' $VAL_2_
 sed -i '' 's#":8080"#":'"$VAL_2_ROSETTA_API_PORT"'"#g' $VAL_2_CHAIN_DIR/config/app.toml
 sed -i '' 's/enable = false/enable = true/g' $VAL_2_CHAIN_DIR/config/app.toml
 sed -i '' 's/swagger = false/swagger = true/g' $VAL_2_CHAIN_DIR/config/app.toml
+sed -i '' 's/minimum-gas-prices = ""/minimum-gas-prices = "0stake"/g' $VAL_1_CHAIN_DIR/config/app.toml
+sed -i '' 's/minimum-gas-prices = ""/minimum-gas-prices = "0stake"/g' $VAL_2_CHAIN_DIR/config/app.toml
 sed -i '' 's/persistent_peers = ""/persistent_peers = "'$VAL_2_NODE_ID'@'localhost':'$VAL_2_P2P_PORT'"/g' $VAL_1_CHAIN_DIR/config/config.toml
 sed -i '' 's/persistent_peers = ""/persistent_peers = "'$VAL_1_NODE_ID'@'localhost':'$VAL_1_P2P_PORT'"/g' $VAL_2_CHAIN_DIR/config/config.toml
 sed -i '' 's/unconditional_peer_ids = ""/unconditional_peer_ids = "'$VAL_1_NODE_ID'"/g' $VAL_2_CHAIN_DIR/config/config.toml
@@ -224,17 +231,17 @@ sed -i '' 's/pprof_laddr = "localhost:6060"/pprof_laddr = "localhost:'$VAL_2_PPR
 sed -i '' 's/addr_book_strict = true/addr_book_strict = false/g' $VAL_2_CHAIN_DIR/config/config.toml
 sed -i '' 's/addr_book_strict = true/addr_book_strict = false/g' $VAL_1_CHAIN_DIR/config/config.toml
 
-# verify genesis hash after the modification 
-# 
-# 238ce65ca9f1b112cf3480de99bd0fdd9a65c54cf71ea155f0ba9ea897cffc56
-#
+# verify the genesis hash
 cat genesis.json  | shasum -a 256
+> 
+238ce65ca9f1b112cf3480de99bd0fdd9a65c54cf71ea155f0ba9ea897cffc56
 ```
 
-### 6. Start the chain wth 2 validators
+### 7. Start the chain
+
+Open up two terminals and start 2 validator nodes. 
 
 ```bash
-# start validator nodes 
 #
 # Terminal 1
 #
@@ -252,19 +259,20 @@ export HOME2=./data/$CHAIN_ID/val2
 $BINARY start --home $HOME2 --x-crisis-skip-assert-invariants
 ```
 
-### 7. Send upgrade proposal
+### 8. Send an upgrade proposal to the network
+
+Open up terminal 3 to send an upgrade proposal along with a deposit and a vote.
 
 ```bash
 #
 # Terminal 3
 #
-# submit upgrade proposal 
 # make sure upgrade-height has enough time for the proposal to pass
 gaiad tx gov submit-proposal software-upgrade vega \
 --title vega \
 --deposit 1000uatom \
---upgrade-height 7304525 \
---upgrade-info "upgrade-liquidity-module-based-sdk-43-fd6bb727660a052bc1e702325acd28b02dfd6a39" \
+--upgrade-height 7304520 \
+--upgrade-info "upgrade-liquidity-module-based-sdk-43-e817e034edbe812d5debf8c2242bd0f655cc9d46" \
 --description "This on-chain upgrade governance proposal is to adopt the Gravity DEX protocol on the Cosmos Hub. By voting YES to this proposal, you approve of adding the Gravity DEX protocol on the Cosmos Hub.\\n\\n### Background\\n\\nIn July 2020, the Iqlusion team developed ATOM 2021 to drive the direction of the Cosmos Hub after the completion of the Cosmos whitepaper and IBC. It became clear that providing liquidity to new IBC connected zones was core the Hub's mission. \\n\\nTendermint ([https://tendermint.com](https://tendermint.com/)) and B-Harvest ([https://bharvest.io](https://bharvest.io/))  joined forces to produce and develop a Liquidity Module ([https://github.com/tendermint/liquidity](https://github.com/tendermint/liquidity)). In 2021 March, they submitted a signal governance proposal to ask the Atom delegator community about Gravity DEX (Liquidity Module) adoption on the Cosmos Hub. Prop38 was very well approved by the community ([https://www.mintscan.io/cosmos/proposals/38](https://www.mintscan.io/cosmos/proposals/38)).\\n\\nThis proposal completes the first leg of ATOM 2021 and achieves the goals of the signaling proposal by bringing an IBC compatible DEX to the Hub.\\n\\n### Ready for Production\\n\\nWith continuous quality improvement of the codebase, very wide test coverage, a codebase audit from Least Authority and Simply VC, and subsequent follow-up codebase strengthening, along with extensive simulation processes, we are now very confident to be ready for production utilization of the Gravity DEX (Liquidity Module) on the Cosmos Hub. The Gaia branch for the new release with Gravity DEX feature can be found [here](https://github.com/cosmos/gaia/releases/tag/v5.0.0)). Please also check out the [github repository](https://github.com/b-harvest/gravity-dex-upgrade-test) for the launch testing of Gaia with Gravity DEX.\\n\\n### On-Chain Upgrade Process\\n\\nWhen the network reaches the halt height, the state machine program of the Cosmos Hub will be halted. And then, all validators and node operators have to substitute the existing state machine binary to the new binary with the Gravity DEX feature. Because it is an onchain upgrade process, the blockchain will be continued with all the accumulated history with continuous block height.\\n\\n### Potential Risk Factors\\n\\nAlthough Tendermint executed very extensive testing and simulation, and conducted in-depth audits, and followed up with the corresponding codebase improvement, there always still exists a risk that the Cosmos Hub might experience problems due to potential bugs or errors from the new Gravity DEX feature. In the case of serious problems, validators should stop operating the network immediately, and use the fixed state machine program provided by Tendermint." \
 --gas 400000 \
 --from user1 \
@@ -281,7 +289,6 @@ gaiad query gov proposal 54 \
 --home data/cosmoshub-4-upgrade-testnet-1001/val2 \
 --node tcp://localhost:36657
 
-
 # vote yes for the proposal
 # note that voting period, quorum, and threshold params are modified 
 gaiad tx gov vote 54 yes \
@@ -292,7 +299,7 @@ gaiad tx gov vote 54 yes \
 --node tcp://localhost:36657 \
 --yes
 
-# Wait for a while for the proposal to pass
+# wait for a while for the proposal to pass
 
 # query the proposal to check if it is passed
 # the status should be PROPOSAL_STATUS_PASSED
@@ -341,13 +348,13 @@ content:
     the case of serious problems, validators should stop operating the network immediately,
     and use the fixed state machine program provided by Tendermint.
   plan:
-    height: "7304525"
-    info: upgrade-liquidity-module-based-sdk-43-fd6bb727660a052bc1e702325acd28b02dfd6a39
+    height: "7304520"
+    info: upgrade-liquidity-module-based-sdk-43-e817e034edbe812d5debf8c2242bd0f655cc9d46
     name: vega
     time: "0001-01-01T00:00:00Z"
     upgraded_client_state: null
   title: vega
-deposit_end_time: "2021-09-07T01:27:11.079575Z"
+deposit_end_time: "2021-09-07T02:08:31.975946Z"
 final_tally_result:
   abstain: "0"
   "no": "0"
@@ -355,20 +362,20 @@ final_tally_result:
   "yes": "108058021"
 proposal_id: "54"
 status: PROPOSAL_STATUS_PASSED
-submit_time: "2021-08-24T01:27:11.079575Z"
+submit_time: "2021-08-24T02:08:31.975946Z"
 total_deposit:
 - amount: "1000"
   denom: uatom
-voting_end_time: "2021-08-24T01:28:11.079575Z"
-voting_start_time: "2021-08-24T01:27:11.079575Z"
+voting_end_time: "2021-08-24T02:09:31.975946Z"
+voting_start_time: "2021-08-24T02:08:31.975946Z"
 ```
 
-### 8. Restart node using new gaiad gravity-dex version,
+### 9. Restart node using new gaiad gravity-dex version,
 
 The proposal has passed and it is all good to go. When `upgrade-height` is reached, the node must be halted for upgrade.
 
-> ERR UPGRADE "vega" NEEDED at height: 7304525: upgrade-liquidity-module-based-sdk-43-fd6bb727660a052bc1e702325acd28b02dfd6a39
-  ERR CONSENSUS FAILURE!!! err="UPGRADE \"vega\" NEEDED at height: 7304525: upgrade-liquidity-module-based-sdk-43-fd6bb727660a052bc1e702325acd28b02dfd6a39" 
+> ERR UPGRADE "vega" NEEDED at height: 7304520: upgrade-liquidity-module-based-sdk-43-e817e034edbe812d5debf8c2242bd0f655cc9d46
+  ERR CONSENSUS FAILURE!!! err="UPGRADE \"vega\" NEEDED at height: 7304520: upgrade-liquidity-module-based-sdk-43-e817e034edbe812d5debf8c2242bd0f655cc9d46"
   ........................................................................................................
   ..................................................................................................................................
 
@@ -382,20 +389,95 @@ make install
 # check version
 gaiad version
 > 
-upgrade-liquidity-module-based-sdk-43-fd6bb727660a052bc1e702325acd28b02dfd6a39
+upgrade-liquidity-module-based-sdk-43-e817e034edbe812d5debf8c2242bd0f655cc9d46
 
-#
 # Terminal 1
-#
 gaiad start --home $HOME1 --x-crisis-skip-assert-invariants
 
-#
 # Terminal 2
-#
 gaiad start --home $HOME2 --x-crisis-skip-assert-invariants
 ```
 
-### Error 
+### 10. Test liquidity module
 
-9:57AM ERR BINARY UPDATED BEFORE TRIGGER! UPGRADE "Gravity-DEX" - in binary but not executed on chain
-panic: BINARY UPDATED BEFORE TRIGGER! UPGRADE "Gravity-DEX" - in binary but not executed on chain
+Let's first query the values are set as liquidity parameter.
+
+```bash
+gaiad query liquidity params \
+--node tcp://localhost:36657 \
+--output json | jq
+```
+
+Result
+
+```json
+{
+  "pool_types": [
+    {
+      "id": 1,
+      "name": "StandardLiquidityPool",
+      "min_reserve_coin_num": 2,
+      "max_reserve_coin_num": 2,
+      "description": "Standard liquidity pool with pool price function X/Y, ESPM constraint, and two kinds of reserve coins"
+    }
+  ],
+  "min_init_deposit_amount": "1000000",
+  "init_pool_coin_mint_amount": "1000000",
+  "max_reserve_coin_amount": "0",
+  "pool_creation_fee": [
+    {
+      "denom": "uatom",
+      "amount": "40000000"
+    }
+  ],
+  "swap_fee_rate": "0.003000000000000000",
+  "withdraw_fee_rate": "0.000000000000000000",
+  "max_order_amount_ratio": "0.100000000000000000",
+  "unit_batch_height": 1,
+  "circuit_breaker_enabled": false
+}
+```
+
+```bash
+# create liquidity pool 
+gaiad tx liquidity create-pool 1 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C,1000000uatom \
+--from user2 \
+--keyring-backend test \
+--home data/cosmoshub-4-upgrade-testnet-1001/val2 \
+--chain-id cosmoshub-4-upgrade-testnet-1001 \
+--gas 300000 \
+--node tcp://localhost:36657 \
+--yes
+
+# query liquidity pool
+gaiad query liquidity pools \
+--node tcp://localhost:36657 \
+--output json | jq
+
+# swap request 
+gaiad tx liquidity swap 1 1 100000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C 0.019 0.003 \
+--from user2 --keyring-backend test \
+--home data/cosmoshub-4-upgrade-testnet-1001/val2 \
+--chain-id cosmoshub-4-upgrade-testnet-1001 \
+--node tcp://localhost:36657
+
+gaiad query auth account cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6 \
+--node tcp://localhost:36657 \
+--output json | jq
+
+gaiad query auth account cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 \
+--node tcp://localhost:36657 \
+--output json | jq
+
+# withdraw request
+gaiad tx liquidity withdraw 1 1000pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151 \
+--from user2 --keyring-backend test \
+--home data/cosmoshub-4-upgrade-testnet-1001/val2 \
+--chain-id cosmoshub-4-upgrade-testnet-1001 \
+--node tcp://localhost:36657
+
+# query balance after swap transacted 
+gaiad query bank balances cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 \
+--node tcp://localhost:36657 \
+--output json | jq
+```
