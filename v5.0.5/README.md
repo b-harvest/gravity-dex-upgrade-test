@@ -2,12 +2,22 @@
 
 ## Versions
 
-- Cosmos Hub Mainnet `cosmoshub-4` currently uses [gaia v5.0.5](https://github.com/cosmos/gaia/releases/tag/v5.0.5).
-- [Upgrade `gaiad` version with Gravity DEX that is rebased to Cosmos SDK v0.43.0](https://github.com/b-harvest/gravity-dex/tree/upgrade-liquidity-module-based-sdk-43)
+- Cosmos Hub Mainnet `cosmoshub-4` version: [gaia v5.0.5](https://github.com/cosmos/gaia/releases/tag/v5.0.5)
+- Forked version of `gaiad`: [the version with Gravity DEX that is based on Cosmos SDK v0.43.0](https://github.com/b-harvest/gravity-dex/tree/upgrade-liquidity-module-based-sdk-43)
+
+## Build
+
+```bash
+git clone -b v5.0.5 https://github.com/cosmos/gaia.git
+cd gaia
+make build
+
+mv ./build/gaiad $GOBIN/gaiad_old
+```
 
 ## Option 1: Fast track
 
-We have prepared a genesis file `genesis.json.tar.bz2` which was obtained after going from "Step 1 to 5" in Option 2. Uncompress the genesis file and use it as the genesis data to mock the upgrade simulation test. You can go to `Step 4` to proceed.
+We have prepared a genesis file `genesis.json.tar.bz2` which was obtained after proceeding from `Step 1 to Step 5` in Option 2 below. Uncompress the genesis file and use it as the genesis data to mock the upgrade simulation test. You can go to `Step 4` to proceed.
 
 ```bash
 # uncompress the file
@@ -55,7 +65,7 @@ In this step, we are going to swap 2 validators and add new 2 different accounts
 
 ```bash
 # change chain id
-sed -i '' 's%"chain_id": "cosmoshub-4",%"chain_id": "cosmoshub-4-upgrade-testnet-1001",%g' genesis.json
+sed -i '' 's%"chain_id": "cosmoshub-4",%"chain_id": "cosmoshub-4-upgrade-testnet-2001",%g' genesis.json
 
 # substitue "Certus One" validator1
 sed -i '' 's%cOQZvh/h9ZioSeUMZB/1Vy1Xo5x2sjrVjlE/qHnYifM=%qwiUMxz3llsy45fPvM0a8+XQeAJLvrX3QAEJmRMEEoU=%g' genesis.json
@@ -136,7 +146,7 @@ sed -i '' 's%"voting_period": "1209600s"%"voting_period": "60s"%g' genesis.json
 ```bash
 export EXPORTED_GENESIS=genesis.json
 export BINARY=gaiad_old
-export CHAIN_ID=cosmoshub-4-upgrade-testnet-1001
+export CHAIN_ID=cosmoshub-4-upgrade-testnet-2001
 export CHAIN_DIR=./data
 
 export VAL_1_CHAIN_DIR=$CHAIN_DIR/$CHAIN_ID/val1
@@ -229,23 +239,18 @@ sed -i '' 's/unconditional_peer_ids = ""/unconditional_peer_ids = "'$VAL_2_NODE_
 sed -i '' 's/pprof_laddr = "localhost:6060"/pprof_laddr = "localhost:'$VAL_2_PPROF_PORT'"/g' $VAL_2_CHAIN_DIR/config/config.toml
 sed -i '' 's/addr_book_strict = true/addr_book_strict = false/g' $VAL_2_CHAIN_DIR/config/config.toml
 sed -i '' 's/addr_book_strict = true/addr_book_strict = false/g' $VAL_1_CHAIN_DIR/config/config.toml
-
-# verify the genesis hash
-cat genesis.json  | shasum -a 256
-> 
-238ce65ca9f1b112cf3480de99bd0fdd9a65c54cf71ea155f0ba9ea897cffc56
 ```
 
 ### Step 6. Start the chain
 
-Open up two terminals and start 2 validator nodes. 
+Open up two terminals and start 2 validator nodes. It requires 2+ validators to start the network that is exported from live chain. Read [this issue](https://github.com/cosmos/cosmos-sdk/issues/7505) for more information about it. You can start the chain without `--x-crisis-skip-assert-invariants` flag. In this test, start the chain with the flag since it takes a long time to bootstrap and start the chain. 
 
 ```bash
 #
 # Terminal 1
 #
 export BINARY=gaiad_old
-export CHAIN_ID=cosmoshub-4-upgrade-testnet-1001
+export CHAIN_ID=cosmoshub-4-upgrade-testnet-2001
 export HOME1=./data/$CHAIN_ID/val1
 $BINARY start --home $HOME1 --x-crisis-skip-assert-invariants
 
@@ -253,7 +258,7 @@ $BINARY start --home $HOME1 --x-crisis-skip-assert-invariants
 # Terminal 2
 #
 export BINARY=gaiad_old
-export CHAIN_ID=cosmoshub-4-upgrade-testnet-1001
+export CHAIN_ID=cosmoshub-4-upgrade-testnet-2001
 export HOME2=./data/$CHAIN_ID/val2
 $BINARY start --home $HOME2 --x-crisis-skip-assert-invariants
 ```
@@ -278,16 +283,16 @@ $BINARY tx gov submit-proposal software-upgrade vega \
 --gas 400000 \
 --from user1 \
 --keyring-backend test \
---chain-id cosmoshub-4-upgrade-testnet-1001 \
---home data/cosmoshub-4-upgrade-testnet-1001/val2 \
+--chain-id cosmoshub-4-upgrade-testnet-2001 \
+--home data/cosmoshub-4-upgrade-testnet-2001/val2 \
 --node tcp://localhost:36657 \
 --yes -b block
 
 # query the proposal to check the status. 
 # the status should be PROPOSAL_STATUS_VOTING_PERIOD.
 $BINARY query gov proposal 54 \
---chain-id cosmoshub-4-upgrade-testnet-1001 \
---home data/cosmoshub-4-upgrade-testnet-1001/val2 \
+--chain-id cosmoshub-4-upgrade-testnet-2001 \
+--home data/cosmoshub-4-upgrade-testnet-2001/val2 \
 --node tcp://localhost:36657
 
 # vote yes for the proposal
@@ -295,8 +300,8 @@ $BINARY query gov proposal 54 \
 $BINARY tx gov vote 54 yes \
 --from user1 \
 --keyring-backend test \
---chain-id cosmoshub-4-upgrade-testnet-1001 \
---home data/cosmoshub-4-upgrade-testnet-1001/val2 \
+--chain-id cosmoshub-4-upgrade-testnet-2001 \
+--home data/cosmoshub-4-upgrade-testnet-2001/val2 \
 --node tcp://localhost:36657 \
 --yes -b block
 
@@ -305,8 +310,8 @@ $BINARY tx gov vote 54 yes \
 # query the proposal to check if it is passed
 # the status should be PROPOSAL_STATUS_PASSED
 $BINARY query gov proposal 54 \
---chain-id cosmoshub-4-upgrade-testnet-1001 \
---home data/cosmoshub-4-upgrade-testnet-1001/val2 \
+--chain-id cosmoshub-4-upgrade-testnet-2001 \
+--home data/cosmoshub-4-upgrade-testnet-2001/val2 \
 --node tcp://localhost:36657
 ```
 
@@ -413,8 +418,8 @@ Result
 gaiad tx liquidity create-pool 1 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C,1000000uatom \
 --from user2 \
 --keyring-backend test \
---home data/cosmoshub-4-upgrade-testnet-1001/val2 \
---chain-id cosmoshub-4-upgrade-testnet-1001 \
+--home data/cosmoshub-4-upgrade-testnet-2001/val2 \
+--chain-id cosmoshub-4-upgrade-testnet-2001 \
 --gas 300000 \
 --node tcp://localhost:36657 \
 --yes -b block
@@ -427,8 +432,8 @@ gaiad query liquidity pools \
 # swap request 
 gaiad tx liquidity swap 10 1 100000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C 0.019 0.003 \
 --from user2 --keyring-backend test \
---home data/cosmoshub-4-upgrade-testnet-1001/val2 \
---chain-id cosmoshub-4-upgrade-testnet-1001 \
+--home data/cosmoshub-4-upgrade-testnet-2001/val2 \
+--chain-id cosmoshub-4-upgrade-testnet-2001 \
 --node tcp://localhost:36657 --yes -b block
 
 gaiad query auth account cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6 \
@@ -447,22 +452,22 @@ gaiad query bank balances cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 \
 # withdraw request
 gaiad tx liquidity withdraw 10 1000pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151 \
 --from user2 --keyring-backend test \
---home data/cosmoshub-4-upgrade-testnet-1001/val2 \
---chain-id cosmoshub-4-upgrade-testnet-1001 \
+--home data/cosmoshub-4-upgrade-testnet-2001/val2 \
+--chain-id cosmoshub-4-upgrade-testnet-2001 \
 --node tcp://localhost:36657 --yes -b block
 
 
 gaiad tx liquidity deposit 10 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C,1000000uatom \
 --from user2 --keyring-backend test \
---home data/cosmoshub-4-upgrade-testnet-1001/val2 \
---chain-id cosmoshub-4-upgrade-testnet-1001 \
+--home data/cosmoshub-4-upgrade-testnet-2001/val2 \
+--chain-id cosmoshub-4-upgrade-testnet-2001 \
 --node tcp://localhost:36657 --yes -b block
 
 
 gaiad tx bank send user2 cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6 79373uatom  \
 --keyring-backend test \
---home data/cosmoshub-4-upgrade-testnet-1001/val2 \
---chain-id cosmoshub-4-upgrade-testnet-1001 \
+--home data/cosmoshub-4-upgrade-testnet-2001/val2 \
+--chain-id cosmoshub-4-upgrade-testnet-2001 \
 --node tcp://localhost:36657 --yes -b block --output json
 
 # query balance after transacted 
@@ -485,7 +490,7 @@ diff exported_genesis_with_height_7304500_sorted.json genesis.json -u
  {
    "genesis_time": "2019-12-11T16:11:34Z",
 -  "chain_id": "cosmoshub-4",
-+  "chain_id": "cosmoshub-4-upgrade-testnet-1001",
++  "chain_id": "cosmoshub-4-upgrade-testnet-2001",
    "initial_height": "7304501",
    "consensus_params": {
      "block": {
