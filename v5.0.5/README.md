@@ -26,7 +26,7 @@ tar xvzf genesis.json.tar.bz2
 # verify the hash
 cat genesis.json | shasum -a 256
 > 
-238ce65ca9f1b112cf3480de99bd0fdd9a65c54cf71ea155f0ba9ea897cffc56
+a44e3392391e9afa4b53e08c7d6639ca46d6fd109d0280b93346582ed06e4ecf
 ```
 
 ## Option 2: Step by step guide
