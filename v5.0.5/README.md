@@ -2,8 +2,8 @@
 
 ## Versions
 
-- Cosmos Hub Mainnet `cosmoshub-4` version: [gaia v5.0.5](https://github.com/cosmos/gaia/releases/tag/v5.0.5)
-- Forked version of `gaiad`: [the version with Gravity DEX that is based on Cosmos SDK v0.43.0](https://github.com/b-harvest/gravity-dex/tree/upgrade-liquidity-module-based-sdk-43)
+- Cosmos Hub Mainnet `cosmoshub-4` current version: [gaia v5.0.5](https://github.com/cosmos/gaia/releases/tag/v5.0.5)
+- Forked version of `gaiad`: [includes Gravity DEX that is based on Cosmos SDK v0.44.0](https://github.com/b-harvest/gravity-dex/tree/upgrade-liquidity-module-based-sdk-43)
 
 ## Build
 
@@ -297,7 +297,7 @@ $BINARY tx gov submit-proposal software-upgrade vega \
 --title vega \
 --deposit 1000uatom \
 --upgrade-height 7304620 \
---upgrade-info "upgrade-liquidity-module-based-sdk-43" \
+--upgrade-info "upgrade-liquidity-module-based-sdk-44" \
 --description "vega upgrade" \
 --gas 400000 \
 --from user1 \
@@ -342,7 +342,7 @@ content:
   description: vega upgrade
   plan:
     height: "7304620"
-    info: upgrade-liquidity-module-based-sdk-43
+    info: upgrade-liquidity-module-based-sdk-44
     name: vega
     time: "0001-01-01T00:00:00Z"
     upgraded_client_state: null
@@ -373,7 +373,7 @@ The proposal has passed and it is all good to go. When `upgrade-height` is reach
   ..................................................................................................................................
 
 ```bash
-# build the gaia version that is rebased to Cosmos SDK v0.43.0
+# build the gaia version that is rebased to Cosmos SDK v0.44.0
 # latest commit of upgrade-liquidity-module-based-sdk-43 branch
 git clone -b upgrade-liquidity-module-based-sdk-43 https://github.com/b-harvest/gravity-dex.git
 cd gravity-dex
