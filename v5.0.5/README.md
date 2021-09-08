@@ -243,24 +243,42 @@ sed -i '' 's/addr_book_strict = true/addr_book_strict = false/g' $VAL_1_CHAIN_DI
 
 ### Step 6. Start the chain
 
-Open up two terminals and start 2 validator nodes. It requires 2+ validators to start the network that is exported from live chain. Read [this issue](https://github.com/cosmos/cosmos-sdk/issues/7505) for more information about it. You can start the chain without `--x-crisis-skip-assert-invariants` flag. In this test, start the chain with the flag since it takes a long time to bootstrap and start the chain. 
+Open up two terminals and start 2 validator nodes. It requires 2+ validators to start the network that is exported from live chain. Read [this issue](https://github.com/cosmos/cosmos-sdk/issues/7505) for more information about it. You can start the chain with `--x-crisis-skip-assert-invariants` flag to skip invariant checks since it takes a long time. It takes more than an hour to start the chain. Of course, it depends on the resources of your local machine.
 
 ```bash
 #
-# Terminal 1
+# Terminal 1 (note that you should run the below command from v5.0.5 directory)
 #
 export BINARY=gaiad_old
 export CHAIN_ID=cosmoshub-4-upgrade-testnet-2001
 export HOME1=./data/$CHAIN_ID/val1
-$BINARY start --home $HOME1 --x-crisis-skip-assert-invariants
+$BINARY start --home $HOME1
 
 #
-# Terminal 2
+# Optional Commands
+#
+# skip invariant checks to start the chain
+$BINARY start --home $HOME1 --x-crisis-skip-assert-invariants
+
+# reset the blockchain database and its state
+$BINARY unsafe-reset-all --home $HOME1
+
+#
+# Terminal 2 (note that you should run the below command from v5.0.5 directory)
 #
 export BINARY=gaiad_old
 export CHAIN_ID=cosmoshub-4-upgrade-testnet-2001
 export HOME2=./data/$CHAIN_ID/val2
+$BINARY start --home $HOME2 
+
+#
+# Optional Commands
+#
+# skip invariant checks to start the chain
 $BINARY start --home $HOME2 --x-crisis-skip-assert-invariants
+
+# reset the blockchain database and its state
+$BINARY unsafe-reset-all --home $HOME1
 ```
 
 ### Step 7. Send an upgrade proposal to the network
@@ -269,15 +287,16 @@ Open up terminal 3 to send an upgrade proposal along with a deposit and a vote.
 
 ```bash
 #
-# Terminal 3
+# Terminal 3 (note that you should run the below command from v5.0.5 directory)
 #
+
 export BINARY=gaiad_old
 
 # make sure upgrade-height has enough time for the proposal to pass
 $BINARY tx gov submit-proposal software-upgrade vega \
 --title vega \
 --deposit 1000uatom \
---upgrade-height 7304520 \
+--upgrade-height 7304620 \
 --upgrade-info "upgrade-liquidity-module-based-sdk-43" \
 --description "vega upgrade" \
 --gas 400000 \
@@ -315,7 +334,6 @@ $BINARY query gov proposal 54 \
 --node tcp://localhost:36657
 ```
 
-
 Result of the proposal
 
 ```json
@@ -323,34 +341,34 @@ content:
   '@type': /cosmos.upgrade.v1beta1.SoftwareUpgradeProposal
   description: vega upgrade
   plan:
-    height: "7304520"
+    height: "7304620"
     info: upgrade-liquidity-module-based-sdk-43
     name: vega
     time: "0001-01-01T00:00:00Z"
     upgraded_client_state: null
   title: vega
-deposit_end_time: "2021-09-13T17:08:46.291275Z"
+deposit_end_time: "2021-09-17T07:26:13.536950Z"
 final_tally_result:
   abstain: "0"
   "no": "0"
   no_with_veto: "0"
-  "yes": "75958321"
+  "yes": "108058021"
 proposal_id: "54"
 status: PROPOSAL_STATUS_PASSED
-submit_time: "2021-08-30T17:08:46.291275Z"
+submit_time: "2021-09-03T07:26:13.536950Z"
 total_deposit:
 - amount: "1000"
   denom: uatom
-voting_end_time: "2021-08-30T17:09:46.291275Z"
-voting_start_time: "2021-08-30T17:08:46.291275Z"
+voting_end_time: "2021-09-03T07:27:13.536950Z"
+voting_start_time: "2021-09-03T07:26:13.536950Z"
 ```
 
 ### Step 8. Restart node using new gaiad gravity-dex version
 
 The proposal has passed and it is all good to go. When `upgrade-height` is reached, the node must be halted for upgrade.
 
-> ERR UPGRADE "vega" NEEDED at height: 7304520: upgrade-liquidity-module-based-sdk-43-e817e034edbe812d5debf8c2242bd0f655cc9d46
-  ERR CONSENSUS FAILURE!!! err="UPGRADE \"vega\" NEEDED at height: 7304520: upgrade-liquidity-module-based-sdk-43-e817e034edbe812d5debf8c2242bd0f655cc9d46"
+> ERR UPGRADE "vega" NEEDED at height: 7304620: upgrade-liquidity-module-based-sdk-43
+  ERR CONSENSUS FAILURE!!! err="UPGRADE \"vega\" NEEDED at height: 7304620: upgrade-liquidity-module-based-sdk-43" module=consensus stack="goroutine 285931 [running]:\nruntime/debug.Stack(0xc01aee9020, 0x55de1c0, 0xc054e7af10)\n\truntime/debug/stack.go:24 +0x9f\ngithub.com/tendermint/tendermint/consensus.(*State).
   ........................................................................................................
   ..................................................................................................................................
 
@@ -414,6 +432,13 @@ Result
 ```
 
 ```bash
+export CHAIN_ID=cosmoshub-4-upgrade-testnet-2001
+export HOME1=./data/$CHAIN_ID/val1
+export HOME2=./data/$CHAIN_ID/val2
+
+# query user2 balance
+gaiad q bank balances cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 --output json | jq
+
 # create liquidity pool 
 gaiad tx liquidity create-pool 1 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C,1000000uatom \
 --from user2 \
@@ -425,16 +450,19 @@ gaiad tx liquidity create-pool 1 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5
 --yes -b block
 
 # query liquidity pool
-gaiad query liquidity pools \
---node tcp://localhost:36657 \
---output json | jq
+gaiad q liquidity pools --node tcp://localhost:36657 --output json | jq
+
+# query reserve pool balances
+gaiad q bank balances cosmos1qf9sqpexwyh3py786f8vx2w7fx8thpd5wz79sf --output json | jq
 
 # swap request 
 gaiad tx liquidity swap 10 1 100000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C 0.019 0.003 \
---from user2 --keyring-backend test \
---home data/cosmoshub-4-upgrade-testnet-2001/val2 \
+--home $HOME2 \
 --chain-id cosmoshub-4-upgrade-testnet-2001 \
---node tcp://localhost:36657 --yes -b block
+--node tcp://localhost:36657 \
+--from user2 \
+--keyring-backend test \
+--yes -b block
 
 gaiad query auth account cosmos1w323u2q2f9h8nnhus0s9zmzfl4a3mft4xse2h6 \
 --node tcp://localhost:36657 \
