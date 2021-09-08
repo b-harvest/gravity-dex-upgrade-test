@@ -296,7 +296,7 @@ export BINARY=gaiad_old
 $BINARY tx gov submit-proposal software-upgrade vega \
 --title vega \
 --deposit 1000uatom \
---upgrade-height 7304620 \
+--upgrade-height 7304550 \
 --upgrade-info "upgrade-liquidity-module-based-sdk-44" \
 --description "vega upgrade" \
 --gas 400000 \
@@ -341,34 +341,34 @@ content:
   '@type': /cosmos.upgrade.v1beta1.SoftwareUpgradeProposal
   description: vega upgrade
   plan:
-    height: "7304620"
+    height: "7304550"
     info: upgrade-liquidity-module-based-sdk-44
     name: vega
     time: "0001-01-01T00:00:00Z"
     upgraded_client_state: null
   title: vega
-deposit_end_time: "2021-09-17T07:26:13.536950Z"
+deposit_end_time: "2021-09-22T06:14:12.664014Z"
 final_tally_result:
   abstain: "0"
   "no": "0"
   no_with_veto: "0"
-  "yes": "108058021"
+  "yes": "75958321"
 proposal_id: "54"
 status: PROPOSAL_STATUS_PASSED
-submit_time: "2021-09-03T07:26:13.536950Z"
+submit_time: "2021-09-08T06:14:12.664014Z"
 total_deposit:
 - amount: "1000"
   denom: uatom
-voting_end_time: "2021-09-03T07:27:13.536950Z"
-voting_start_time: "2021-09-03T07:26:13.536950Z"
+voting_end_time: "2021-09-08T06:15:12.664014Z"
+voting_start_time: "2021-09-08T06:14:12.664014Z"
 ```
 
 ### Step 8. Restart node using new gaiad gravity-dex version
 
 The proposal has passed and it is all good to go. When `upgrade-height` is reached, the node must be halted for upgrade.
 
-> ERR UPGRADE "vega" NEEDED at height: 7304620: upgrade-liquidity-module-based-sdk-43
-  ERR CONSENSUS FAILURE!!! err="UPGRADE \"vega\" NEEDED at height: 7304620: upgrade-liquidity-module-based-sdk-43" module=consensus stack="goroutine 285931 [running]:\nruntime/debug.Stack(0xc01aee9020, 0x55de1c0, 0xc054e7af10)\n\truntime/debug/stack.go:24 +0x9f\ngithub.com/tendermint/tendermint/consensus.(*State).
+> ERR UPGRADE "vega" NEEDED at height: 7304550: upgrade-liquidity-module-based-sdk-44
+  ERR CONSENSUS FAILURE!!! err="UPGRADE \"vega\" NEEDED at height: 7304550: upgrade-liquidity-module-based-sdk-44" module=consensus stack="goroutine 286005 [running]:\nruntime/debug.Stack(0xc01aee9020, 0x55de1c0, 0xc054e7af10)\n\truntime/debug/stack.go:24 +0x9f\ngithub.com/tendermint/tendermint/consensus.(*State).
   ........................................................................................................
   ..................................................................................................................................
 
