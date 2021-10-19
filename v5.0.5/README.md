@@ -35,7 +35,7 @@ We have prepared a genesis file `exported_genesis_with_height_7304500_sorted.jso
 
 ```bash
 # uncompress the file
-tar xvzf exported_genesis_with_height_7304500_sorted.json.tar.bz2
+tar xvzf ../data/exported_genesis_with_height_7304500_sorted.json.tar.bz2
 
 # verify the hash
 cat exported_genesis_with_height_7304500_sorted.json | shasum -a 256
@@ -206,8 +206,8 @@ Copy the genesis file and new validator consensus keys to the designated directo
 # copy genesis file to the designated directories and copy validator consensus key files
 cp genesis.json $VAL_1_CHAIN_DIR/config/genesis.json
 cp genesis.json $VAL_2_CHAIN_DIR/config/genesis.json
-cp priv_validator_key_val1.json $VAL_1_CHAIN_DIR/config/priv_validator_key.json
-cp priv_validator_key_val2.json $VAL_2_CHAIN_DIR/config/priv_validator_key.json
+cp ../data/priv_validator_key_val1.json $VAL_1_CHAIN_DIR/config/priv_validator_key.json
+cp ../data/priv_validator_key_val2.json $VAL_2_CHAIN_DIR/config/priv_validator_key.json
 
 # configure parameters in config.toml and app.toml files
 export VAL_1_P2P_PORT=26656

@@ -190,8 +190,8 @@ cp genesis.json $VAL_1_CHAIN_DIR/config/genesis.json
 cp genesis.json $VAL_2_CHAIN_DIR/config/genesis.json
 
 # copy validator keys
-cp priv_validator_key_val1.json $VAL_1_CHAIN_DIR/config/priv_validator_key.json
-cp priv_validator_key_val2.json $VAL_2_CHAIN_DIR/config/priv_validator_key.json
+cp ./data/priv_validator_key_val1.json $VAL_1_CHAIN_DIR/config/priv_validator_key.json
+cp ./data/priv_validator_key_val2.json $VAL_2_CHAIN_DIR/config/priv_validator_key.json
 
 # configure config and app toml
 export VAL_1_P2P_PORT=26656
