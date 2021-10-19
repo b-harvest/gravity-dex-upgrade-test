@@ -65,7 +65,7 @@ cp exported_genesis_with_height_7304500_sorted.json genesis.json
 
 ### (Option 2) Step 1. Substitute validator keys and accounts
 
-In this step, we will swap 2 validators with two new accounts in the genesis file and we will also modify some parameters to improve test efficiency. The following files that contain validators' consensus keys and mnemonics for the two accounts are already prepared. 
+In this step, we will swap 2 validators with two new accounts in the genesis file and we will also modify some parameters to improve test efficiency. The following files that contain validators' consensus keys and mnemonics for the two accounts are already prepared. Why do we need to swap 2 validators? See [this issue](https://github.com/cosmos/cosmos-sdk/issues/7505) for reference.
 
 - `priv_validator_key_val1.json`: validator1's consensus key
 
@@ -142,10 +142,7 @@ sed -i '' 's%277549930240869%1006277549930240869%g' genesis.json
 # Fix balance of bonded_tokens_pool module account (cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh)
 sed -i '' 's%194093338099942%6194093338099942%g' genesis.json
 
-# Fix the balance of a account to use as a faucet on testnet
-#
-# Substitute user2 account: cosmos1z98eg2ztdp2glyla62629nrlvczg8s7f0tm3dx --> cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9
-#
+# Fix the balance of user2 account (cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9)
 sed -i '' 's%"amount": "72177323"%"amount": "1000000000072177323"%g' genesis.json
 ```
 
@@ -246,7 +243,12 @@ export VAL_2_ROSETTA_API_PORT=8081
 export VAL_2_PPROF_PORT=6061
 export VAL_2_NODE_ID=$($BINARY tendermint --home $VAL_2_CHAIN_DIR show-node-id)
 
-sed -i '' 's/enable = true/enable = false/g' $VAL_1_CHAIN_DIR/config/app.toml # disable all for val1 to prevent from colluding ports
+sed -i '' 's/enable = true/enable = false/g' $VAL_1_CHAIN_DIR/config/app.toml # disable this to prevent from port collision
+sed -i '' 's/minimum-gas-prices = ""/minimum-gas-prices = "0stake"/g' $VAL_1_CHAIN_DIR/config/app.toml
+sed -i '' 's/persistent_peers = ""/persistent_peers = "'$VAL_2_NODE_ID'@'localhost':'$VAL_2_P2P_PORT'"/g' $VAL_1_CHAIN_DIR/config/config.toml
+sed -i '' 's/unconditional_peer_ids = ""/unconditional_peer_ids = "'$VAL_2_NODE_ID'"/g' $VAL_1_CHAIN_DIR/config/config.toml
+sed -i '' 's/addr_book_strict = true/addr_book_strict = false/g' $VAL_1_CHAIN_DIR/config/config.toml
+
 sed -i '' 's#"tcp://127.0.0.1:26657"#"tcp://0.0.0.0:'"$VAL_2_RPC_PORT"'"#g' $VAL_2_CHAIN_DIR/config/config.toml
 sed -i '' 's#"tcp://0.0.0.0:26656"#"tcp://0.0.0.0:'"$VAL_2_P2P_PORT"'"#g' $VAL_2_CHAIN_DIR/config/config.toml
 sed -i '' 's#"tcp://0.0.0.0:1317"#"tcp://0.0.0.0:'"$VAL_2_API_PORT"'"#g' $VAL_2_CHAIN_DIR/config/app.toml
@@ -255,20 +257,106 @@ sed -i '' 's#"0.0.0.0:9091"#"0.0.0.0:'"$VAL_2_GRPC_WEB_SERVER_PORT"'"#g' $VAL_2_
 sed -i '' 's#":8080"#":'"$VAL_2_ROSETTA_API_PORT"'"#g' $VAL_2_CHAIN_DIR/config/app.toml
 sed -i '' 's/enable = false/enable = true/g' $VAL_2_CHAIN_DIR/config/app.toml
 sed -i '' 's/swagger = false/swagger = true/g' $VAL_2_CHAIN_DIR/config/app.toml
-sed -i '' 's/minimum-gas-prices = ""/minimum-gas-prices = "0stake"/g' $VAL_1_CHAIN_DIR/config/app.toml
 sed -i '' 's/minimum-gas-prices = ""/minimum-gas-prices = "0stake"/g' $VAL_2_CHAIN_DIR/config/app.toml
-sed -i '' 's/persistent_peers = ""/persistent_peers = "'$VAL_2_NODE_ID'@'localhost':'$VAL_2_P2P_PORT'"/g' $VAL_1_CHAIN_DIR/config/config.toml
 sed -i '' 's/persistent_peers = ""/persistent_peers = "'$VAL_1_NODE_ID'@'localhost':'$VAL_1_P2P_PORT'"/g' $VAL_2_CHAIN_DIR/config/config.toml
 sed -i '' 's/unconditional_peer_ids = ""/unconditional_peer_ids = "'$VAL_1_NODE_ID'"/g' $VAL_2_CHAIN_DIR/config/config.toml
-sed -i '' 's/unconditional_peer_ids = ""/unconditional_peer_ids = "'$VAL_2_NODE_ID'"/g' $VAL_1_CHAIN_DIR/config/config.toml
 sed -i '' 's/pprof_laddr = "localhost:6060"/pprof_laddr = "localhost:'$VAL_2_PPROF_PORT'"/g' $VAL_2_CHAIN_DIR/config/config.toml
 sed -i '' 's/addr_book_strict = true/addr_book_strict = false/g' $VAL_2_CHAIN_DIR/config/config.toml
-sed -i '' 's/addr_book_strict = true/addr_book_strict = false/g' $VAL_1_CHAIN_DIR/config/config.toml
 ```
 
-### Step 6.
+### Step 6. Start the chain
 
-### Step 7.
+In this step, we will open two terminals and start two validator nodes.  It requires 2+ validators to start the network that is exported from live chain. Read [this issue](https://github.com/cosmos/cosmos-sdk/issues/7505) for more information about it. You can start the chain with `--x-crisis-skip-assert-invariants` flag to skip invariant checks since it takes quite a long time. It takes more than an hour to start the chain. Of course, it depends on the resources of your local machine.
+
+```bash
+#
+# Terminal 1 (note that you should run the below command from directory where data folder is located)
+#
+export BINARY=gaiad_old
+export CHAIN_ID=cosmoshub-4-upgrade-testnet-2002
+export HOME1=./data/$CHAIN_ID/val1
+$BINARY start --home $HOME1
+
+#
+# Terminal 2 (note that you should run the below command from directory where data folder is located)
+#
+export BINARY=gaiad_old
+export CHAIN_ID=cosmoshub-4-upgrade-testnet-2002
+export HOME2=./data/$CHAIN_ID/val2
+$BINARY start --home $HOME2 
+
+#
+# (With --x-crisis-skip-assert-invariants flag) Terminal 1 
+#
+# skip invariant checks to start the chain
+$BINARY start --home $HOME1 --x-crisis-skip-assert-invariants
+
+# reset the blockchain database and its state
+$BINARY unsafe-reset-all --home $HOME1
+
+#
+# (With --x-crisis-skip-assert-invariants flag) Terminal 2
+#
+# skip invariant checks to start the chain
+$BINARY start --home $HOME2 --x-crisis-skip-assert-invariants
+
+#
+# Reset the blockchain database and its state
+#
+$BINARY unsafe-reset-all --home $HOME1
+```
+
+### Step 7.  Send an upgrade proposal to the network
+
+In this step, we will open up `Terminal 3` to send an upgrade governance proposal along with a deposit.
+
+```bash
+#
+# Terminal 3 (note that you should run the below command from directory where data folder is located)
+#
+export BINARY=gaiad_old
+
+# make sure upgrade-height has enough time for the proposal to pass
+$BINARY tx gov submit-proposal software-upgrade vega \
+--title vega \
+--deposit 1000uatom \
+--upgrade-height 7304550 \
+--upgrade-info "upgrade-liquidity-module-based-sdk-44" \
+--description "vega upgrade" \
+--gas 400000 \
+--from user1 \
+--keyring-backend test \
+--chain-id cosmoshub-4-upgrade-testnet-2001 \
+--home data/cosmoshub-4-upgrade-testnet-2001/val2 \
+--node tcp://localhost:36657 \
+--yes -b block
+
+# query the proposal to check the status. 
+# the status should be PROPOSAL_STATUS_VOTING_PERIOD.
+$BINARY query gov proposal 54 \
+--chain-id cosmoshub-4-upgrade-testnet-2001 \
+--home data/cosmoshub-4-upgrade-testnet-2001/val2 \
+--node tcp://localhost:36657
+
+# vote yes for the proposal
+# note that voting period, quorum, and threshold params are modified 
+$BINARY tx gov vote 54 yes \
+--from user1 \
+--keyring-backend test \
+--chain-id cosmoshub-4-upgrade-testnet-2001 \
+--home data/cosmoshub-4-upgrade-testnet-2001/val2 \
+--node tcp://localhost:36657 \
+--yes -b block
+
+# wait for a while for the proposal to pass
+
+# query the proposal to check if it is passed
+# the status should be PROPOSAL_STATUS_PASSED
+$BINARY query gov proposal 54 \
+--chain-id cosmoshub-4-upgrade-testnet-2001 \
+--home data/cosmoshub-4-upgrade-testnet-2001/val2 \
+--node tcp://localhost:36657
+```
 
 ### Step 8.
 
