@@ -462,13 +462,13 @@ gaiad query liquidity params \
 }
 ```
 
-### Change InitPoolCoinMintAmount parameter 
+### Change `InitPoolCoinMintAmount` parameter 
 
 Now, let's change `init_pool_coin_mint_amount` through parameter change governance proposal
 
 ```json
 {
-  "title": "Staking Param Change",
+  "title": "Liquidity Param Change",
   "description": "Update Initial PoolCoin Mint Amount",
   "changes": [
     {
@@ -493,7 +493,7 @@ gaiad tx gov submit-proposal param-change proposal.json \
 -o json | jq
 
 # Query the proposal to check the status. 
-# the status should be PROPOSAL_STATUS_VOTING_PERIOD.
+# The status should be PROPOSAL_STATUS_VOTING_PERIOD.
 $BINARY query gov proposal 55 \
 --chain-id $CHAIN_ID \
 --home data/$CHAIN_ID/val2 \
@@ -535,10 +535,11 @@ export HOME1=./data/$CHAIN_ID/val1
 export HOME2=./data/$CHAIN_ID/val2
 
 # Query user2 balance
+# http://localhost:1327/cosmos/bank/v1beta1/balances/cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9
 gaiad q bank balances cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 -o json | jq
 
-# Create pool 
-gaiad tx liquidity create-pool 1 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C,1000000uatom \
+# Create pool with large initial deposits
+gaiad tx liquidity create-pool 1 1250001000000uatom,90000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C \
 --home $HOME2 \
 --chain-id $CHAIN_ID \
 --from user2 \
@@ -547,13 +548,22 @@ gaiad tx liquidity create-pool 1 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5
 --node tcp://localhost:36657 \
 --yes -b block -o json | jq
 
-# Query pools
-gaiad q liquidity pools --node tcp://localhost:36657 -o json | jq
+# Query pool with pool id 10
+gaiad q liquidity pool 10 --node tcp://localhost:36657 -o json | jq
 
 # Query reserve pool balances
 gaiad q bank balances cosmos1qf9sqpexwyh3py786f8vx2w7fx8thpd5wz79sf -o json | jq
 
-# Swap request 
+# Deposit with a small amounts
+gaiad tx liquidity deposit 10 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C,1000000uatom \
+--home $HOME2 \
+--chain-id $CHAIN_ID \
+--from user2 \
+--keyring-backend test \
+--node tcp://localhost:36657 \
+--yes -b block -o json | jq
+
+# Swap 
 gaiad tx liquidity swap 10 1 100000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C 0.019 0.003 \
 --home $HOME2 \
 --chain-id $CHAIN_ID \
@@ -562,17 +572,8 @@ gaiad tx liquidity swap 10 1 100000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B92A
 --keyring-backend test \
 --yes -b block -o json | jq
 
-# Withdraw request
-gaiad tx liquidity withdraw 10 1000pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151 \
---home $HOME2 \
---chain-id $CHAIN_ID \
---from user2 \
---keyring-backend test \
---node tcp://localhost:36657 \
---yes -b block -o json | jq
-
-# Deposit request
-gaiad tx liquidity deposit 10 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C,1000000uatom \
+# Withdraw
+gaiad tx liquidity withdraw 10 100000pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151 \
 --home $HOME2 \
 --chain-id $CHAIN_ID \
 --from user2 \
