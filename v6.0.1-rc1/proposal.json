@@ -1,0 +1,12 @@
+{
+  "title": "Liquidity Param Change",
+  "description": "Update InitPoolCoinMintAmount",
+  "changes": [
+    {
+      "subspace": "liquidity",
+      "key": "InitPoolCoinMintAmount",
+      "value": "1000000000000"
+    }
+  ],
+  "deposit": "10000uatom"
+}
