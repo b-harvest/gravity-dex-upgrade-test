@@ -313,12 +313,18 @@ $BINARY start --home $HOME2
 # (With --x-crisis-skip-assert-invariants flag) Terminal 1 
 #
 # skip invariant checks to start the chain
+export BINARY=gaiad_old
+export CHAIN_ID=cosmoshub-4-upgrade-testnet-2002
+export HOME1=./data/$CHAIN_ID/val1
 $BINARY start --home $HOME1 --x-crisis-skip-assert-invariants
 
 #
 # (With --x-crisis-skip-assert-invariants flag) Terminal 2
 #
 # skip invariant checks to start the chain
+export BINARY=gaiad_old
+export CHAIN_ID=cosmoshub-4-upgrade-testnet-2002
+export HOME2=./data/$CHAIN_ID/val2
 $BINARY start --home $HOME2 --x-crisis-skip-assert-invariants
 
 #
@@ -563,7 +569,7 @@ export HOME2=./data/$CHAIN_ID/val2
 gaiad q bank balances cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 -o json | jq
 
 # Create pool with large initial deposits
-gaiad tx liquidity create-pool 1 1250001000000uatom,90000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C \
+gaiad tx liquidity create-pool 1 1250001000000uatom,9000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C \
 --home $HOME2 \
 --chain-id $CHAIN_ID \
 --from user2 \
@@ -578,8 +584,25 @@ gaiad q liquidity pool 10 --node tcp://localhost:36657 -o json | jq
 # Query reserve pool balances
 gaiad q bank balances cosmos1qf9sqpexwyh3py786f8vx2w7fx8thpd5wz79sf -o json | jq
 
+# Withdraw
+#
+# Debugging...
+# http://localhost:36657/block_results?height=
+# https://hallazzang.github.io/tendermint-toolkit/
+#
+# ERR withdraw failed error="invalid pool coin amount" batchIndex=9 module=liquidity msgIndex=8 poolID=10 withdrawer=cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9
+# withdraw less than 1000000 is not allowed. 
+#
+gaiad tx liquidity withdraw 10 1pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151 \
+--home $HOME2 \
+--chain-id $CHAIN_ID \
+--from user2 \
+--keyring-backend test \
+--node tcp://localhost:36657 \
+--yes -b block -o json | jq
+
 # Deposit with a small amounts
-gaiad tx liquidity deposit 10 1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C,1000000uatom \
+gaiad tx liquidity deposit 10 10000uatom,1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C \
 --home $HOME2 \
 --chain-id $CHAIN_ID \
 --from user2 \
@@ -594,15 +617,6 @@ gaiad tx liquidity swap 10 1 100000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B92A
 --node tcp://localhost:36657 \
 --from user2 \
 --keyring-backend test \
---yes -b block -o json | jq
-
-# Withdraw
-gaiad tx liquidity withdraw 10 100000pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151 \
---home $HOME2 \
---chain-id $CHAIN_ID \
---from user2 \
---keyring-backend test \
---node tcp://localhost:36657 \
 --yes -b block -o json | jq
 ```
 
