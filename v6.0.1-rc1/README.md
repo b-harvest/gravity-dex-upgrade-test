@@ -568,8 +568,8 @@ export HOME2=./data/$CHAIN_ID/val2
 # http://localhost:1327/cosmos/bank/v1beta1/balances/cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9
 gaiad q bank balances cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9 -o json | jq
 
-# Create pool with large initial deposits
-gaiad tx liquidity create-pool 1 1250001000000uatom,9000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C \
+# Create pool 
+gaiad tx liquidity create-pool 1 1000000000uatom,9000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C \
 --home $HOME2 \
 --chain-id $CHAIN_ID \
 --from user2 \
@@ -584,16 +584,9 @@ gaiad q liquidity pool 10 --node tcp://localhost:36657 -o json | jq
 # Query reserve pool balances
 gaiad q bank balances cosmos1qf9sqpexwyh3py786f8vx2w7fx8thpd5wz79sf -o json | jq
 
-# Withdraw
-#
-# Debugging...
-# http://localhost:36657/block_results?height=
-# https://hallazzang.github.io/tendermint-toolkit/
-#
-# ERR withdraw failed error="invalid pool coin amount" batchIndex=9 module=liquidity msgIndex=8 poolID=10 withdrawer=cosmos1wvvhhfm387xvfnqshmdaunnpujjrdxznr5d5x9
-# withdraw less than 1000000 is not allowed. 
-#
-gaiad tx liquidity withdraw 10 1pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151 \
+# Withdraw some pool coins
+# Note that withdrawing a small amount of pool coin will fail
+gaiad tx liquidity withdraw 10 100000000pool024B000726712F1093C7D24EC329DE498EBB85B4B2D37C59D4F37BC542020151 \
 --home $HOME2 \
 --chain-id $CHAIN_ID \
 --from user2 \
@@ -601,8 +594,8 @@ gaiad tx liquidity withdraw 10 1pool024B000726712F1093C7D24EC329DE498EBB85B4B2D3
 --node tcp://localhost:36657 \
 --yes -b block -o json | jq
 
-# Deposit with a small amounts
-gaiad tx liquidity deposit 10 10000uatom,1000000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C \
+# Deposit 
+gaiad tx liquidity deposit 10 100000000uatom,900000ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C \
 --home $HOME2 \
 --chain-id $CHAIN_ID \
 --from user2 \
@@ -611,13 +604,22 @@ gaiad tx liquidity deposit 10 10000uatom,1000000ibc/1BE91D67775723D3230A9A5AC54B
 --yes -b block -o json | jq
 
 # Swap 
-gaiad tx liquidity swap 10 1 100000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C 0.019 0.003 \
+gaiad tx liquidity swap 10 1 10000000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B92A5A51B4B8F20BBA37DF1CFA602297C 0.0089 0.003 \
 --home $HOME2 \
 --chain-id $CHAIN_ID \
 --node tcp://localhost:36657 \
 --from user2 \
 --keyring-backend test \
 --yes -b block -o json | jq
+
+#
+# To debug whether or not transaction is successfully deposited, withdrew, or swapped, 
+# you need to look up the block height result that the trasaction is included.
+# http://localhost:36657/block_results?height={height}
+# 
+# Paste the result of block_results into this site that decodes keys and values from base64 format. 
+# https://hallazzang.github.io/tendermint-toolkit/
+#
 ```
 
 ## Modified parameters in `genesis.json` file
