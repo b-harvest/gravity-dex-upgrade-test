@@ -613,11 +613,12 @@ gaiad tx liquidity swap 10 1 10000000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B9
 --yes -b block -o json | jq
 
 #
-# To debug whether or not transaction is successfully deposited, withdrew, or swapped, 
-# you need to look up the block height result that the trasaction is included.
+# Debugging if the transaction is successfully deposited, withdrew, or swapped requires 
+# you to look up the block height result that the trasaction is included.
+# Reference this link to find out the block height result
 # http://localhost:36657/block_results?height={height}
 # 
-# Paste the result of block_results into this site that decodes keys and values from base64 format. 
+# Copy and paste the result into this site that conveniently decodes keys and values from base64 format. 
 # https://hallazzang.github.io/tendermint-toolkit/
 #
 ```
