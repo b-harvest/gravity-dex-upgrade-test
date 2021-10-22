@@ -614,7 +614,7 @@ gaiad tx liquidity swap 10 1 10000000uatom ibc/1BE91D67775723D3230A9A5AC54BB29B9
 
 #
 # Debugging if the transaction is successfully deposited, withdrew, or swapped requires 
-# you to look up the block height result that the trasaction is included.
+# you to look up the block height result that the transaction is included.
 # Reference this link to find out the block height result
 # http://localhost:36657/block_results?height={height}
 # 
