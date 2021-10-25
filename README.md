@@ -12,7 +12,7 @@ This repository contains procedures and results from simulating upgrade tests fo
 - [Cosmos SDK v0.44.2](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.44.2)
 - [Gaia v5.0.5](https://github.com/cosmos/gaia/releases/tag/v5.0.5)
 - [Forked Gaia that includes liquidity module v1.4.1-rc1](https://github.com/b-harvest/gravity-dex/tree/tendermint/upgrade-sim-test-v6.0.1-rc1)
-- [Liquidity module v1.4.1-rc1](https://github.com/Gravity-Devs/liquidity/releases/tag/v1.4.1-rc1)
+- [Liquidity module v1.4.1](https://github.com/Gravity-Devs/liquidity/releases/tag/v1.4.1)
 - [Reference about last upgrade simulation test](https://github.com/b-harvest/gravity-dex-upgrade-test/pull/4)
 
 ### (2021.08.23) Delta Upgrade with [v5.0.5](v5.0.5) 
