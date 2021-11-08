@@ -12,3 +12,8 @@ v5.0.5/genesis.json
 v6.0.0/data
 v6.0.0/exported_genesis_with_height_7304500_sorted.json
 v6.0.0/genesis.json
+
+# v6.0.0-with-budget-farming
+v6.0.0-with-budget-farming/data
+v6.0.0-with-budget-farming/exported_genesis_with_height_7304500_sorted.json
+v6.0.0-with-budget-farming/genesis.json
