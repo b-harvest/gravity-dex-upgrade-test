@@ -3,7 +3,7 @@
 ## Version
 
 - `cosmoshub-4` current version: [Gaia v5.0.5](https://github.com/cosmos/gaia/releases/tag/v5.0.5)
-- Upgrade test version: [Forked Gaia that includes liquidity module v1.4.1](https://github.com/b-harvest/gravity-dex/tree/tendermint/upgrade-sim-test-v6.0.1-rc1)
+- Upgrade test version: [Gaia v6.0.0-rc2](https://github.com/cosmos/gaia/tree/v6.0.0-rc2)
 
 ## Build
 
@@ -23,7 +23,7 @@ mv ./build/gaiad $GOBIN/gaiad_old
 
 ```bash
 # Use git to clone the project and build it
-git clone -b tendermint/upgrade-sim-test-v6.0.1-rc1 https://github.com/b-harvest/gravity-dex.git
+git clone -b v6.0.0-rc2 https://github.com/cosmos/gaia.git
 cd gravity-dex
 make install
 ```
@@ -33,7 +33,7 @@ make install
 The genesis file `genesis.json.tar.bz2` is already prepared for this option. It is obtained by proceeding from **Step 1~3** in **Option 2** below. Uncompress the genesis file and use it as the genesis data to simulate the upgrade test. You can directly go to **Step 4** to proceed if you choose to go with this option.
 
 ```bash
-cd v6.0.1-rc1
+cd v6.0.0
 
 # Uncompress the file that was compressed by the command `tar -cvjSf genesis.json.tar.bz2 genesis.json`
 tar xvzf genesis.json.tar.bz2
@@ -49,7 +49,7 @@ cat genesis.json | shasum -a 256
 `exported_genesis_with_height_7304500_sorted.json.tar.bz2` file inside `./data` folder in this repository is prepared. It is obtained by `$ gaia export --height 7304500` command from `cosmoshub-4` network and compressed the file by using `tar -cvjSf exported_genesis_with_height_7304500.json.tar.bz2 exported_genesis_with_height_7304500.json` command. Uncompress the exported file and use it as the genesis data to simulate the upgrade test.
 
 ```bash
-cd v6.0.1-rc1
+cd v6.0.0
 
 # Uncompress the file
 tar xvzf ../data/exported_genesis_with_height_7304500_sorted.json.tar.bz2
@@ -435,7 +435,7 @@ $BINARY tx gov submit-proposal software-upgrade Vega \
 --title Vega \
 --deposit 1000uatom \
 --upgrade-height 7304530 \
---upgrade-info "tendermint/upgrade-sim-test-v6.0.1-rc1-383444b6ec0af7f3657c5db35572449c5433c493" \
+--upgrade-info "v6.0.0-rc2-277a25b8940f0cfb1dc2d05fe11dc6e646840988" \
 --description "Vega Upgrade" \
 --gas 400000 \
 --from user1 \
@@ -489,7 +489,7 @@ Result of the proposal
       "name": "Vega",
       "time": "0001-01-01T00:00:00Z",
       "height": "7304530",
-      "info": "tendermint/upgrade-sim-test-v6.0.1-rc1-383444b6ec0af7f3657c5db35572449c5433c493",
+      "info": "v6.0.0-rc2-277a25b8940f0cfb1dc2d05fe11dc6e646840988",
       "upgraded_client_state": null
     }
   },
@@ -517,8 +517,8 @@ Result of the proposal
 
 The proposal has successfully passed and the chain is halted for upgrade when `upgrade-height` is reached.
 
-> ERR UPGRADE "Vega" NEEDED at height: 7304530: tendermint/upgrade-sim-test-v6.0.1-rc1-383444b6ec0af7f3657c5db35572449c5433c493
-> ERR CONSENSUS FAILURE!!! err="UPGRADE \"Vega\" NEEDED at height: 7304530: tendermint/upgrade-sim-test-v6.0.1-rc1-383444b6ec0af7f3657c5db35572449c5433c493" module=consensus stack="goroutine 167 [running]:\nruntime/debug.Stack()\n\truntime/debug/stack.go:24 +0x65\ngithub.com/tendermint/tendermint/consensus.(*State)...
+> ERR UPGRADE "Vega" NEEDED at height: 7304530: v6.0.0-rc2-277a25b8940f0cfb1dc2d05fe11dc6e646840988
+> ERR CONSENSUS FAILURE!!! err="UPGRADE \"Vega\" NEEDED at height: 7304530: v6.0.0-rc2-277a25b8940f0cfb1dc2d05fe11dc6e646840988" module=consensus stack="goroutine 167 [running]:\nruntime/debug.Stack()\n\truntime/debug/stack.go:24 +0x65\ngithub.com/tendermint/tendermint/consensus.(*State)...
 
 In this step, we will use `gaiad` that includes the liquidity module `v1.4.1`.
 
